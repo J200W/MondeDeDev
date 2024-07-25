@@ -41,6 +41,11 @@ public class SubscriptionService {
         this.subscriptionRepository.deleteById(id);
     }
 
+
+    public void deleteByTopicId(Integer topicId) {
+        this.subscriptionRepository.deleteByTopicId(topicId);
+    }
+
     public Subscription update(Integer id, Subscription subscription) {
         subscription.setId(id);
         return this.subscriptionRepository.save(subscription);

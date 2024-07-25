@@ -1,0 +1,39 @@
+<div id="articles">
+    <div class="top">
+        <button routerLink="/article/create" mat-raised-button color="primary">
+            Créer un article
+        </button>
+        <div id="selects">
+            <mat-form-field appearance="outline">
+                <mat-label>-- Trier par --</mat-label>
+                <mat-select [(ngModel)]="sortValue" (ngModelChange)="sortArticles()">
+                    <mat-optgroup label="Date">
+                        <mat-option value="date-asc">Date (+ ancien)</mat-option>
+                        <mat-option value="date-desc">Date (+ récent)</mat-option>
+                    </mat-optgroup>
+                    <mat-optgroup label="Titre">
+                        <mat-option value="title-asc">Titre (A-Z)</mat-option>
+                        <mat-option value="title-desc">Titre (Z-A)</mat-option>
+                    </mat-optgroup>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+    <div class="articles">
+        <mat-card *ngFor="let article of getArticles()" class="article" routerLink="/article/detail/{{ article.id }}">
+            <mat-card-header>
+                <mat-card-title class="mat-title">{{ article.title }}</mat-card-title>
+                <div class="subtitle">
+                    <mat-card-subtitle>{{ article.user.username }}</mat-card-subtitle>
+                    <mat-card-subtitle>
+                        {{ article.date | date : "dd/MM/yyyy" }} à {{ article.date | date : "HH:mm" }}
+                    </mat-card-subtitle>
+                </div>
+            </mat-card-header>
+            <mat-card-content>
+                <p>{{ article.content }}</p>
+            </mat-card-content>
+        </mat-card>
+
+    </div>
+</div>

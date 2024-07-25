@@ -4,13 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequest {
     @NotBlank
-    private String email;
+    private String emailOrUsername;
 
     @NotBlank
     private String password;
 
-    public String getEmail() {
-        return email;
+    public String getEmailOrUsername() {
+        return emailOrUsername;
     }
 
     public String getPassword() {

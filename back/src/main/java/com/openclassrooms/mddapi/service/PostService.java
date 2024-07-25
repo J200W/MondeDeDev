@@ -14,10 +14,6 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public void delete(Integer id) {
-        this.postRepository.deleteById(id);
-    }
-
     public List<Post> findAll() {
         return this.postRepository.findAll();
     }
@@ -33,5 +29,9 @@ public class PostService {
 
     public Post create(Post post) {
         return this.postRepository.save(post);
+    }
+
+    public void deleteByTopicId(Integer topicId) {
+        this.postRepository.deleteByTopicId(topicId);
     }
 }

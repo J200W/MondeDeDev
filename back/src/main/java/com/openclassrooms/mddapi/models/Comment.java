@@ -34,6 +34,5 @@ public class Comment {
     private String content;
 
     @Column(name = "date")
-    @NonNull
-    private LocalDateTime date;
+    public LocalDateTime date = LocalDateTime.now();
 }

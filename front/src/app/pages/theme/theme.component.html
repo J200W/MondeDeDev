@@ -1,0 +1,15 @@
+<div id="topics">
+    <div class="topics">
+        <mat-card *ngFor="let theme of getThemes()" class="topic">
+            <mat-card-header>
+                <mat-card-title>{{ theme.title }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <p>{{ theme.description }}</p>
+            </mat-card-content>
+            <button mat-raised-button color="primary" class="subscribe-btn" (click)="subscribe(theme)">
+                S'abonner
+            </button>
+        </mat-card>
+    </div>
+</div>

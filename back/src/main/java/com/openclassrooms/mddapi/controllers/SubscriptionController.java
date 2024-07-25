@@ -2,6 +2,8 @@ package com.openclassrooms.mddapi.controllers;
 
 import com.openclassrooms.mddapi.models.Subscription;
 import com.openclassrooms.mddapi.service.SubscriptionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +16,10 @@ import java.util.List;
  */
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/subscriptions")
+@RequestMapping("/api/subscription")
 public class SubscriptionController {
 
+    private static final Logger log = LoggerFactory.getLogger(SubscriptionController.class);
     @Autowired
     private SubscriptionService subscriptionService;
 
@@ -60,6 +63,7 @@ public class SubscriptionController {
     @PostMapping("/sub")
     public ResponseEntity<Subscription> createSubscription(@RequestBody Subscription subscription) {
         try {
+            log.info("Creating subscription: " + subscription);
             Subscription newSubscription = subscriptionService.create(subscription);
             return ResponseEntity.ok(newSubscription);
         } catch (Exception e) {

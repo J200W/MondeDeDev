@@ -46,12 +46,13 @@ public class Post {
     public String content;
 
     @Column(name = "date")
-    @NonNull
-    public LocalDateTime date;
+    public LocalDateTime date = LocalDateTime.now();
 
     @ManyToOne
+    @JoinColumn(name = "id_user")
     public User user;
 
     @ManyToOne
+    @JoinColumn(name = "id_topic")
     public Topic topic;
 }

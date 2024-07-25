@@ -48,11 +48,10 @@ public class User {
 
     @Column(name = "password")
     @NonNull
-    @Size(max = 120)
     public String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "id_role", joinColumns = @JoinColumn(name = "id_user"), inverseJoinColumns = @JoinColumn(name = "id_role"))
+    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "id_user"), inverseJoinColumns = @JoinColumn(name = "id_role"))
     private Set<Role> role = new HashSet<>();
 
     /**

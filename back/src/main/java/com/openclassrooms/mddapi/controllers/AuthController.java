@@ -12,6 +12,8 @@ import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.security.jwt.JwtUtils;
 import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,6 +37,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     /*
      * AuthenticationManager est utilisé pour l'authentification de l'utilisateur
      */
@@ -67,12 +70,14 @@ public class AuthController {
 
     /*
      * Cette méthode est utilisée pour authentifier un utilisateur
+     * avec son email ou son nom d'utilisateur et son mot de passe
      */
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
+
             // Authentification de l'utilisateur avec l'email et le mot de passe
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmailOrUsername(), loginRequest.getPassword()));
 
             // Mettre l'authentification dans le contexte de sécurité de Spring
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -87,7 +92,7 @@ public class AuthController {
             // Retourner le token JWT et les détails de l'utilisateur
             return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Erreur lors de l'authentification de l'utilisateur !"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Erreur lors de l'authentification de l'utilisateur ! : " + e.getMessage()));
         }
     }
 
@@ -171,7 +176,7 @@ public class AuthController {
             String jwt = jwtUtils.generateJwtToken(authentication);
 
             // Récupérer les détails de l'utilisateur authentifié
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal(); // cast ?
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
             // Retourner un message de succès
             return ResponseEntity.ok(new JwtResponse(jwt,
@@ -182,7 +187,7 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Erreur lors de l'enregistrement de l'utilisateur !"));
+                    .body(new MessageResponse("Erreur lors de l'enregistrement de l'utilisateur : " + e.getMessage()));
         }
     }
 }

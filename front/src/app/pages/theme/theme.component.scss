@@ -1,0 +1,67 @@
+#topics {
+    padding-inline: 50px;
+    padding-top: 2em;
+
+    .topics {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        gap: 1em;
+
+        .topic {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            padding: 16px;
+            border-radius: 5px;
+            box-shadow: none;
+            background-color: #F6F6F6;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+
+            mat-card-header {
+                display: flex;
+                flex-direction: column;
+
+                ::ng-deep .mat-card-header-text {
+                    margin: 0;
+                }
+            }
+
+            .subtitle {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+
+                mat-card-subtitle {
+                    margin-inline: 3px;
+                }
+            }
+
+            mat-card-content {
+                margin-inline: 3px;
+            }
+
+            .subscribe-btn {
+                width: fit-content;
+                margin: auto;
+                padding-inline: 2em;
+            }
+        }
+
+        .topic:hover {
+            background-color: #EAEAEA;
+            transform: scale(1.005);
+        }
+    }
+}
+
+@media screen and (max-width: 768px) {
+    #topics {
+        padding-inline: 10px;
+
+        .topics {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+    }
+
+}
