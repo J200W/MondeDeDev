@@ -5,6 +5,7 @@ import com.openclassrooms.mddapi.models.Role;
 import com.openclassrooms.mddapi.models.User;
 import com.openclassrooms.mddapi.payload.request.LoginRequest;
 import com.openclassrooms.mddapi.payload.request.RegisterRequest;
+import com.openclassrooms.mddapi.payload.request.UserRequest;
 import com.openclassrooms.mddapi.payload.response.JwtResponse;
 import com.openclassrooms.mddapi.payload.response.MessageResponse;
 import com.openclassrooms.mddapi.repository.RoleRepository;
@@ -19,8 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -116,6 +117,43 @@ public class AuthController {
         }
     }
 
+    /**
+     * Cette méthode est utilisée pour mettre à jour les informations de l'utilisateur
+     *
+     * @param userRequest
+     * @return
+     */
+    @PutMapping("/me")
+    public ResponseEntity<?> updateCurrentUser(@Valid @RequestBody UserRequest userRequest) {
+        try {
+            log.info("User : " + userRequest.getEmail() + " | " +userRequest.getUsername() + " is updating...");
+            // Récupérer les informations de l'utilisateur courant
+            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            if (userRepository.existsByEmail(userRequest.getEmail())) {
+                throw new RuntimeException("Erreur: Email déjà utilisé!");
+            }
+
+            // Récupérer l'utilisateur à partir de la base de données
+            User user = userRepository.findByEmail(userDetails.getEmail())
+                    .orElseThrow(() -> new RuntimeException("Erreur: Utilisateur non trouvé!"));
+
+            // Mettre à jour les informations de l'utilisateur
+            user.setEmail(userRequest.getEmail());
+            user.setUsername(userRequest.getUsername());
+
+            // Enregistrer les modifications dans la base de données
+            userRepository.save(user);
+
+            // Retourner un message de succès
+            log.info("User updated successfully!");
+            return ResponseEntity.ok(new MessageResponse("Utilisateur mis à jour avec succès!"));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
+    }
+
     /*
      * Cette méthode est utilisée pour enregistrer un nouvel utilisateur
      */
@@ -124,8 +162,7 @@ public class AuthController {
 
         try {
             // Vérifier si l'email est déjà utilisé
-            if (userRepository.existsByEmail(signUpRequest.getEmail())) { // COMMENT existsByEmail marche alors qu'il n'est
-                // pas implémenté ?
+            if (userRepository.existsByEmail(signUpRequest.getEmail())) {
                 return ResponseEntity
                         .badRequest()
                         .body(new MessageResponse("Error: Email is already in use!"));

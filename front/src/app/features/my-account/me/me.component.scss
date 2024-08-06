@@ -1,6 +1,6 @@
 #my-account {
     padding-inline: 50px;
-    padding-block: 50px;
+    padding-block: 25px;
     margin: auto;
 
     h1 {
@@ -18,14 +18,17 @@
         justify-content: center;
         margin-bottom: 1em;
 
-        a {
+        #logout {
             margin-block: 1em;
             font-size: 1em;
             display: flex;
             align-items: center;
             text-decoration: none;
             color: #FF0000;
-
+            width: fit-content;
+            background: transparent;
+            border: none;
+            cursor: pointer;
         }
 
         mat-form-field {
