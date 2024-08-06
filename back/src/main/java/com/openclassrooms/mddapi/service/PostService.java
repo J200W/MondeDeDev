@@ -15,7 +15,7 @@ public class PostService {
     }
 
     public List<Post> findAll() {
-        return this.postRepository.findAll();
+        return this.postRepository.findAllByOrderByDateDesc();
     }
 
     public Post getById(Integer id){

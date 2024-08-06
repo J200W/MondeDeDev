@@ -1,11 +1,10 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {AuthGuard} from "./guards/auth.guard";
-import {UnauthGuard} from "./guards/unauth.guard";
-import {MeComponent} from "./pages/components/me/me.component";
-import {NotFoundComponent} from "./pages/not-found/not-found.component";
-import {ListArticleComponent} from "./pages/articles/components/list-article/list-article.component";
-import {ThemeComponent} from "./pages/theme/theme.component";
+import {AuthGuard} from "./core/guards/auth.guard";
+import {UnauthGuard} from "./core/guards/unauth.guard";
+import {MeComponent} from "./features/my-account/me/me.component";
+import {NotFoundComponent} from "./features/not-found/not-found.component";
+import {ThemeComponent} from "./features/theme/theme.component";
 
 // consider a guard combined with canLoad / canActivate route option
 // to manage unauthenticated user to access private routes
@@ -13,7 +12,7 @@ const routes: Routes = [
    {
       path: 'article',
       canActivate: [AuthGuard],
-      loadChildren: () => import('./pages/articles/article.module').then(m => m.ArticleModule)
+      loadChildren: () => import('./features/article/article.module').then(m => m.ArticleModule)
    },
    {
       path: 'theme',
@@ -24,7 +23,7 @@ const routes: Routes = [
    {
       path: '',
       canActivate: [UnauthGuard],
-      loadChildren: () => import('./pages/auth/auth.module').then(m => m.AuthModule)
+      loadChildren: () => import('./features/authentification/auth.module').then(m => m.AuthModule)
    },
    {
       path: 'me',
@@ -32,8 +31,8 @@ const routes: Routes = [
       title: 'Mon compte | MondeDeDév',
       component: MeComponent
    },
-   { path: '404', component: NotFoundComponent, title: '404 | MondeDeDév' },
-   { path: '**', redirectTo: '/404' }
+   {path: '404', component: NotFoundComponent, title: '404 | MondeDeDév'},
+   {path: '**', redirectTo: '/404'}
 ];
 
 @NgModule({

@@ -1,0 +1,40 @@
+#my-account {
+    padding-inline: 50px;
+    padding-block: 50px;
+    margin: auto;
+
+    h1 {
+        text-align: center;
+        margin-block: 1em;
+        font-size: 1.8em;
+        font-weight: 700;
+    }
+
+    form {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1em;
+
+        a {
+            margin-block: 1em;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #FF0000;
+
+        }
+
+        mat-form-field {
+            width: 50%;
+            max-width: 400px;
+
+            input {
+                font-size: 1.2em;
+            }
+        }
+    }
+}

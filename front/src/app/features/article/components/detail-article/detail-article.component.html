@@ -1,0 +1,44 @@
+<div id="detail-article">
+    <div class="top-page">
+        <a routerLink="/article">
+            <mat-icon>keyboard_backspace</mat-icon>
+            Retour
+        </a>
+    </div>
+    <div id="article">
+        <div class="article-header">
+            <h1>{{ article?.title }}</h1>
+        </div>
+        <div class="article-sub-header">
+            <p>{{ article?.date | date: 'dd/MM/yyyy' }}</p>
+            <p>{{ article?.user.username }}</p>
+            <p>{{ article?.topic.title }}</p>
+        </div>
+        <div class="article-content">
+            <p [innerHTML]="article?.content"></p>
+        </div>
+        <hr>
+        <div class="article-comment">
+            <h3>Commentaires</h3>
+            <div *ngFor="let comment of comments" class="comment">
+                <div class="comment-left">
+                    <p>{{ comment.user.username }}</p>
+                    <p>{{ comment.date | date: 'dd/MM/yyyy' }}</p>
+                </div>
+                <div class="comment-right">
+                    <p>{{ comment.content }}</p>
+                </div>
+            </div>
+            <form (ngSubmit)="submitComment()" [formGroup]="commentForm">
+                <mat-form-field appearance="outline" fxFlex>
+                    <mat-label>Commentaire</mat-label>
+                    <textarea formControlName="content" matInput placeholder="Écrire un commentaire"
+                              rows="8"></textarea>
+                </mat-form-field>
+                <button [disabled]="commentForm.invalid" type="submit">
+                    <mat-icon>send</mat-icon>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

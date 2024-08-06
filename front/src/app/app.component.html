@@ -1,27 +1,7 @@
 <div class="app">
-    <mat-toolbar
-            class="nav-bar"
-            fxLayout="row"
-            fxLayoutAlign="space-between center"
-    >
-        <a class="logo" routerLink="article">
-            <img src="assets/logo_p6.png">
-        </a>
-        <div>
-            <div class="nav-links" *ngIf="(isLogged$ | async)">
-            <span routerLink="article" class="link"
-                  [class.active]="currentUrl() === '/article'">Articles</span>
-                <span routerLink="theme" class="link" [class.active]="currentUrl() === '/theme'">Themes</span>
-                <span routerLink="me" class="link" [class.active]="currentUrl() === '/me'">
-                <img class="avatar" src="/assets/account.png" alt="avatar">
-            </span>
-            </div>
-        </div>
-    </mat-toolbar>
+    <app-header></app-header>
     <div>
         <router-outlet></router-outlet>
     </div>
-    <mat-toolbar class="footer" fxLayout="row" fxLayoutAlign="center center">
-        <span>© 2024 - MondeDeDév</span>
-    </mat-toolbar>
+    <app-footer></app-footer>
 </div>
