@@ -44,4 +44,16 @@
                     <span class="pwd-incorrect"
                           [ngClass]="{'pwd-correct': passwordFormField?.value?.match('(?=[^!@#$%^&*]*[!@#$%^&*])')}">
                         Au moins un caractère spécial. (!@#$%^&*)
-                    </
+                    </span>
+                    <span class="pwd-incorrect" [ngClass]="{'pwd-correct': passwordFormField?.value?.match('.{8,}')}">
+                        Au moins 8 caractères.
+                    </span>
+                </div>
+            </mat-card-content>
+            <div class="register-actions" fxLayout="row" fxLayoutAlign="end center">
+                <button (click)="submit()" [disabled]="form.invalid" color="primary" mat-raised-button type="submit">Submit</button>
+                <span *ngIf="onError" class="error">An error occurred</span>
+            </div>
+        </form>
+    </mat-card>
+</div>

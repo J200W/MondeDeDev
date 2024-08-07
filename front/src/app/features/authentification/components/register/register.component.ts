@@ -93,4 +93,10 @@ export class RegisterComponent implements OnInit {
                   },
                   (error) => {
                      this.onError = true;
-                     this.authSubscri
+                     this.authSubscription.unsubscribe();
+                  }
+              )
+          );
+   }
+
+}

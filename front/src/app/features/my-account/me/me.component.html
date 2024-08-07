@@ -28,4 +28,41 @@
                 <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
             </button>
         </mat-form-field>
-        <div class="pwd-check" *ngIf="pas
+        <div class="pwd-check" *ngIf="passwordFormField?.dirty && this.profileForm.get('password')!.value != ''">
+            <span class="pwd-incorrect" [ngClass]="{'pwd-correct': passwordFormField?.value?.match('^(?=.*[A-Z])')}">
+                Au moins une lettre majuscule.
+            </span>
+            <span class="pwd-incorrect" [ngClass]="{'pwd-correct': passwordFormField?.value?.match('(?=.*[a-z])')}">
+                Au moins une lettre minuscule.
+            </span>
+            <span class="pwd-incorrect" [ngClass]="{'pwd-correct': passwordFormField?.value?.match('(.*[0-9].*)')}">
+                Au moins un chiffre.
+            </span>
+            <span class="pwd-incorrect" [ngClass]="{'pwd-correct': passwordFormField?.value?.match('(?=[^!@#$%^&*]*[!@#$%^&*])')}">
+                Au moins un caractère spécial. (!@#$%^&*)
+            </span>
+            <span class="pwd-incorrect" [ngClass]="{'pwd-correct': passwordFormField?.value?.match('.{8,}')}">
+                Au moins 8 caractères.
+            </span>
+        </div>
+        <button (click)="save()" mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid">
+            Sauvegarder
+        </button>
+        <button id="logout" (click)="logOut()">Se déconnecter</button>
+    </form>
+    <hr>
+    <h1>Abonnements</h1>
+    <div id="subscriptions">
+        <mat-card *ngFor="let sub of subscriptions" class="sub">
+            <mat-card-header>
+                <mat-card-title>{{ sub.topic.title }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <p>{{ sub.topic.description }}</p>
+            </mat-card-content>
+            <button (click)="unsubscribe(sub)" class="subscribe-btn" color="primary" mat-raised-button>
+                Se désabonner
+            </button>
+        </mat-card>
+    </div>
+</div>
