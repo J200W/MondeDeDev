@@ -1,7 +1,6 @@
 package com.openclassrooms.mddapi.service;
 
 import com.openclassrooms.mddapi.models.Topic;
-import com.openclassrooms.mddapi.repository.SubscriptionRepository;
 import com.openclassrooms.mddapi.repository.TopicRepository;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +10,8 @@ import java.util.List;
 public class TopicService {
     private final TopicRepository topicRepository;
 
-    private final SubscriptionRepository subscriptionRepository;
-
-    public TopicService(TopicRepository topicRepository, SubscriptionRepository subscriptionRepository) {
+    public TopicService(TopicRepository topicRepository) {
         this.topicRepository = topicRepository;
-        this.subscriptionRepository = subscriptionRepository;
     }
 
     public void delete(Integer id) {
@@ -23,7 +19,7 @@ public class TopicService {
     }
 
     public List<Topic> findAll() {
-        return this.topicRepository.findAll();
+        return this.topicRepository.findAllByOrderByIdDesc();
     }
 
     public Topic findById(Integer id) {

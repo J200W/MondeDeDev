@@ -24,7 +24,7 @@ public class SubscriptionService {
      * @return
      */
     public Optional<List<Subscription>> findAllSubscriptionByUser(Integer id) {
-        return this.subscriptionRepository.findAllByUser_Id(id);
+        return this.subscriptionRepository.findAllByUser_IdOrderByIdDesc(id);
     }
 
     /**
@@ -56,6 +56,6 @@ public class SubscriptionService {
     }
 
     public Boolean findByTopicIdAndUserId(Integer topicId, Integer userId) {
-        return this.subscriptionRepository.findByTopicIdAndUserId(topicId, userId).isPresent();
+        return this.subscriptionRepository.findByTopicIdAndUserIdOrderByIdDesc(topicId, userId).isPresent();
     }
 }

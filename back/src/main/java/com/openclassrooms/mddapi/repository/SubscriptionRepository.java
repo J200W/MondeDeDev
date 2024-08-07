@@ -11,8 +11,8 @@ import java.util.Optional;
 
 @Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription, Integer> {
-    Optional<List<Subscription>> findAllByUser_Id(Integer id);
+    Optional<List<Subscription>> findAllByUser_IdOrderByIdDesc(Integer id);
     Optional<Subscription> findAllByTopic_id(Integer id);
     void deleteByTopicId(Integer topicId);
-    Optional<Subscription> findByTopicIdAndUserId(Integer topicId, Integer userId);
+    Optional<Subscription> findByTopicIdAndUserIdOrderByIdDesc(Integer topicId, Integer userId);
 }

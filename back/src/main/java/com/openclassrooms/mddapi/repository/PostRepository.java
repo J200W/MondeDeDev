@@ -10,8 +10,6 @@ import java.util.List;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
-    Post findByTitle(String title);
     List<Post> findAllByOrderByDateDesc();
-    Boolean existsByTitle(String title);
     void deleteByTopicId(Integer topicId);
 }
