@@ -49,7 +49,7 @@ export class LoginComponent implements OnInit {
              localStorage.setItem('token', response.accessToken);
              this.authService.me().subscribe((user: User) => {
                 this.sessionService.logIn(user);
-                this.router.navigate(['/article']);
+                this.router.navigate(['/article']); 
                 this.authSubscription.unsubscribe();
              });
              this.router.navigate(['/article']);
@@ -57,6 +57,7 @@ export class LoginComponent implements OnInit {
           (error) => {
              this.onError = true;
              this.authSubscription.unsubscribe();
+
           }
       );
    }

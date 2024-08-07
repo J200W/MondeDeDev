@@ -39,37 +39,37 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/auth")
 public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
-    /*
+    /**
      * AuthenticationManager est utilisé pour l'authentification de l'utilisateur
      */
     @Autowired
     AuthenticationManager authenticationManager;
 
-    /*
+    /**
      * UserRepository est utilisé pour accéder aux utilisateur de la base de données
      */
     @Autowired
     UserRepository userRepository;
 
-    /*
+    /**
      * RoleRepository est utilisé pour accéder aux roles de la base de données
      */
     @Autowired
     RoleRepository roleRepository;
 
-    /*
+    /**
      * PasswordEncoder est utilisé pour encoder le mot de passe de l'utilisateur
      */
     @Autowired
     PasswordEncoder encoder;
 
-    /*
+    /**
      * JwtUtils est utilisé pour générer un token JWT
      */
     @Autowired
     JwtUtils jwtUtils;
 
-    /*
+    /**
      * Cette méthode est utilisée pour authentifier un utilisateur
      * avec son email ou son nom d'utilisateur et son mot de passe
      */
@@ -97,7 +97,7 @@ public class AuthController {
         }
     }
 
-    /*
+    /**
      * Cette méthode est utilisée pour obtenir les informations de l'utilsateur
      * courant
      */
@@ -126,27 +126,40 @@ public class AuthController {
     @PutMapping("/me")
     public ResponseEntity<?> updateCurrentUser(@Valid @RequestBody UserRequest userRequest) {
         try {
-            log.info("User : " + userRequest.getEmail() + " | " +userRequest.getUsername() + " is updating...");
+            log.info("\nUser : " + userRequest.getId() + " | " + userRequest.getEmail() + " | " + userRequest.getUsername() + " | " + userRequest.getPassword() + " is updating...");
             // Récupérer les informations de l'utilisateur courant
             UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-            if (userRepository.existsByEmail(userRequest.getEmail())) {
+            // Vérifier si l'utilisateur existe dans la base de données
+            if (!userRepository.existsById(userRequest.getId())) {
+                throw new RuntimeException("Erreur: Utilisateur non trouvé!");
+            }
+
+            // Vérifier si l'utilisateur courant est autorisé à mettre à jour l'utilisateur
+            if (!userDetails.getId().equals(userRequest.getId())) {
+                throw new RuntimeException("Erreur: Vous n'êtes pas autorisé à mettre à jour cet utilisateur!");
+            }
+
+            // Vérifier si l'email est déjà utilisé par un autre utilisateur
+            if (userRepository.findByEmail(userRequest.getEmail()).isPresent() &&
+                    !userRepository.findByEmail(userRequest.getEmail()).get().getId().equals(userRequest.getId())) {
                 throw new RuntimeException("Erreur: Email déjà utilisé!");
             }
 
             // Récupérer l'utilisateur à partir de la base de données
-            User user = userRepository.findByEmail(userDetails.getEmail())
-                    .orElseThrow(() -> new RuntimeException("Erreur: Utilisateur non trouvé!"));
+            User user = userRepository.findById(userRequest.getId()).get();
 
             // Mettre à jour les informations de l'utilisateur
             user.setEmail(userRequest.getEmail());
             user.setUsername(userRequest.getUsername());
+            if (userRequest.getPassword() != null && !userRequest.getPassword().isEmpty()) {
+                user.setPassword(encoder.encode(userRequest.getPassword()));
+            }
 
             // Enregistrer les modifications dans la base de données
             userRepository.save(user);
 
             // Retourner un message de succès
-            log.info("User updated successfully!");
             return ResponseEntity.ok(new MessageResponse("Utilisateur mis à jour avec succès!"));
 
         } catch (Exception e) {
@@ -154,7 +167,7 @@ public class AuthController {
         }
     }
 
-    /*
+    /**
      * Cette méthode est utilisée pour enregistrer un nouvel utilisateur
      */
     @PostMapping("/register")

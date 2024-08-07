@@ -9,7 +9,7 @@
     <div>
         <div *ngIf="(isLogged$ | async)" class="nav-links">
             <span routerLinkActive="active" class="link" routerLink="article">Articles</span>
-            <span routerLinkActive="active" class="link" routerLink="theme">Themes</span>
+            <span routerLinkActive="active" class="link" routerLink="theme">Thèmes</span>
             <span *ngIf="currentUrl() === '/me'" class="link" routerLink="me">
                 <img alt="avatar" class="avatar" src="/assets/account_active.svg">
             </span>

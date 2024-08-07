@@ -3,7 +3,7 @@
         <mat-card-header fxLayoutAlign="center center">
             <mat-card-title>Se connecter</mat-card-title>
         </mat-card-header>
-        <form (ngSubmit)="submit()" [formGroup]="form" class="login-form">
+        <form [formGroup]="form" class="login-form">
             <mat-card-content fxLayout="row">
                 <mat-form-field fxFlex>
                     <input formControlName="emailOrUsername" matInput placeholder="Email ou nom d'utilisateur"
@@ -35,6 +35,7 @@
                         fxFlex
                         mat-raised-button
                         type="submit"
+                        (click)="submit()"
                 >
                     Se connecter
                 </button>

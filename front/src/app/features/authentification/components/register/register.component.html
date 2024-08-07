@@ -3,7 +3,7 @@
         <mat-card-header fxLayoutAlign="center center">
             <mat-card-title>Register</mat-card-title>
         </mat-card-header>
-        <form (ngSubmit)="submit()" [formGroup]="form" class="register-form">
+        <form [formGroup]="form" class="register-form">
             <mat-card-content fxLayout="column">
                 <mat-form-field fxFlex>
                     <input formControlName="username" matInput placeholder="Username">
@@ -12,11 +12,46 @@
                     <input formControlName="email" matInput placeholder="Email" type="email">
                 </mat-form-field>
                 <mat-form-field fxFlex>
-                    <input formControlName="password" matInput placeholder="Password" type="password">
+                    <input
+                        formControlName="password"
+                        matInput
+                        placeholder="Password"
+                        [type]="hide ? 'password' : 'text'"
+                    >
+                    <button
+                        (click)="hide = !hide"
+                        [attr.aria-label]="'Hide password'"
+                        [attr.aria-pressed]="hide"
+                        mat-icon-button
+                        matSuffix
+                    >
+                        <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
+                    </button>
                 </mat-form-field>
+                <div class="pwd-check" *ngIf="passwordFormField?.dirty">
+                    <span class="pwd-incorrect"
+                          [ngClass]="{'pwd-correct': passwordFormField?.value?.match('^(?=.*[A-Z])')}">
+                        Au moins une lettre majuscule.
+                    </span>
+                    <span class="pwd-incorrect"
+                          [ngClass]="{'pwd-correct': passwordFormField?.value?.match('(?=.*[a-z])')}">
+                        Au moins une lettre minuscule.
+                    </span>
+                    <span class="pwd-incorrect"
+                          [ngClass]="{'pwd-correct': passwordFormField?.value?.match('(.*[0-9].*)')}">
+                        Au moins un chiffre.
+                    </span>
+                    <span class="pwd-incorrect"
+                          [ngClass]="{'pwd-correct': passwordFormField?.value?.match('(?=[^!@#$%^&*]*[!@#$%^&*])')}">
+                        Au moins un caractère spécial. (!@#$%^&*)
+                    </span>
+                    <span class="pwd-incorrect" [ngClass]="{'pwd-correct': passwordFormField?.value?.match('.{8,}')}">
+                        Au moins 8 caractères.
+                    </span>
+                </div>
             </mat-card-content>
             <div class="register-actions" fxLayout="row" fxLayoutAlign="end center">
-                <button [disabled]="form.invalid" color="primary" mat-raised-button type="submit">Submit</button>
+                <button (click)="submit()" [disabled]="form.invalid" color="primary" mat-raised-button type="submit">Submit</button>
                 <span *ngIf="onError" class="error">An error occurred</span>
             </div>
         </form>

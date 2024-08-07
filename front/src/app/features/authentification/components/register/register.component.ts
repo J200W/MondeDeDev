@@ -7,6 +7,7 @@ import {SessionService} from "../../../../core/services/session.service";
 import {RegisterRequest} from "../../interfaces/registerRequest.interface";
 import {AuthSuccess} from "../../interfaces/authSuccess.interface";
 import {User} from "../../../../core/models/user.interface";
+import {StrongPasswordRegx} from "../../../../core/constants/strong-password-regex";
 
 @Component({
    selector: 'app-register',
@@ -14,6 +15,11 @@ import {User} from "../../../../core/models/user.interface";
    styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit {
+
+   /**
+    * Indique si le mot de passe est caché
+    */
+   public hide = true;
 
    /**
     * Indique si une erreur est survenue lors de l'inscription
@@ -35,8 +41,16 @@ export class RegisterComponent implements OnInit {
    public form: FormGroup = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       username: ['', [Validators.required, Validators.min(3)]],
-      password: ['', [Validators.required, Validators.min(3)]],
+      password: ['', [Validators.required, Validators.pattern(StrongPasswordRegx)]],
    });
+
+   get passwordFormField() {
+      if (this.form.get('password') === null) {
+         return null;
+      }
+      return this.form.get('password');
+   }
+
    /**
     * Subscription au service d'authentification
     * @type {Subscription}
@@ -51,8 +65,7 @@ export class RegisterComponent implements OnInit {
        private fb: FormBuilder,
        private router: Router,
        private sessionService: SessionService
-   ) {
-   }
+   ) {}
 
    ngOnInit(): void {
    }
@@ -74,7 +87,7 @@ export class RegisterComponent implements OnInit {
                      localStorage.setItem('token', response.accessToken);
                      this.authService.me().subscribe((user: User) => {
                         this.sessionService.logIn(user);
-                        this.router.navigate(['/dashboard']);
+                        this.router.navigate(['/article']);
                         this.authSubscription.unsubscribe();
                      });
                   },
