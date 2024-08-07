@@ -54,4 +54,8 @@ public class SubscriptionService {
     public Subscription create(Subscription subscription) {
         return this.subscriptionRepository.save(subscription);
     }
+
+    public Boolean findByTopicIdAndUserId(Integer topicId, Integer userId) {
+        return this.subscriptionRepository.findByTopicIdAndUserId(topicId, userId).isPresent();
+    }
 }

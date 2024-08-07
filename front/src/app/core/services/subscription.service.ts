@@ -1,6 +1,7 @@
 import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
+import {SubscriptionInterface} from "../models/subscription.interface";
 
 @Injectable({
    providedIn: 'root',
@@ -48,5 +49,9 @@ export class SubscriptionService {
     */
    public unsubscribe(subscriptionId: number): Observable<void> {
       return this.httpClient.delete<void>(`${this.pathService}/sub/${subscriptionId}`);
+   }
+
+   public getSubscriptions(): Observable<SubscriptionInterface[]> {
+      return this.httpClient.get<any>(`${this.pathService}/me`);
    }
 }

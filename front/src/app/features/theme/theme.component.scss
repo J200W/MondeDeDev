@@ -10,6 +10,7 @@
         .topic {
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
             gap: 1em;
             padding: 16px;
             border-radius: 5px;
@@ -43,7 +44,7 @@
 
             .subscribe-btn {
                 width: fit-content;
-                margin: auto;
+                margin-inline: auto;
                 padding-inline: 2em;
             }
         }

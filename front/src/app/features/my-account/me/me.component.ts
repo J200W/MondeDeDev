@@ -45,19 +45,22 @@ export class MeComponent implements OnInit {
        private sessionService: SessionService,
        private matSnackBar: MatSnackBar,
        private router: Router
-   ) {
-   }
+   ) {}
 
    ngOnInit(): void {
       this.userService.getMe().subscribe((user) => {
          this.profileForm.patchValue(user);
       });
 
+      const userId = this.sessionService.user?.id;
+
+      this.subscriptionService.getSubscriptions().subscribe((subscriptions) => {
+         this.subscriptions = subscriptions;
+      });
+
    }
 
    public save(): void {
-      console.log(this.profileForm.get('password')!.value !== '');
-      console.log("Regex test : " + StrongPasswordRegx.test(this.profileForm.get('password')!.value));
       if (this.profileForm.get('password')!.value !== '' && !StrongPasswordRegx.test(this.profileForm.get('password')!.value)) {
          this.matSnackBar.open('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.', 'Fermer', {
             duration: 5000,

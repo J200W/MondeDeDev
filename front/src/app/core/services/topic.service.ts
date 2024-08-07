@@ -27,4 +27,13 @@ export class TopicService {
    public getAll(): Observable<Topic[]> {
       return this.httpClient.get<Topic[]>(`${this.pathService}/all`);
    }
+
+   /**
+    * Obtenir les thèmes non souscrits
+    * @returns {Observable<Topic[]>}
+    * @public
+    */
+   public getNotSubscribed(): Observable<Topic[]> {
+      return this.httpClient.get<Topic[]>(`${this.pathService}/not-subscribed`);
+   }
 }

@@ -1,11 +1,13 @@
 package com.openclassrooms.mddapi.controllers;
 
 import com.openclassrooms.mddapi.models.Subscription;
+import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
 import com.openclassrooms.mddapi.service.SubscriptionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,10 +30,16 @@ public class SubscriptionController {
      *
      * @return - ResponseEntity
      */
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Subscription>> getAllSubscriptionsByUser(@PathVariable Integer userId) {
+    @GetMapping("/me")
+    public ResponseEntity<List<Subscription>> getAllSubscriptionsByUser() {
         try {
+            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Integer userId = userDetails.getId();
             List<Subscription> subscriptions = subscriptionService.findAllSubscriptionByUser(userId).get();
+            for (Subscription subscription : subscriptions) {
+                subscription.getUser().setPassword("null");
+                subscription.getUser().setRole(null);
+            }
             return ResponseEntity.ok(subscriptions);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -63,7 +71,6 @@ public class SubscriptionController {
     @PostMapping("/sub")
     public ResponseEntity<Subscription> createSubscription(@RequestBody Subscription subscription) {
         try {
-            log.info("Creating subscription: " + subscription);
             Subscription newSubscription = subscriptionService.create(subscription);
             return ResponseEntity.ok(newSubscription);
         } catch (Exception e) {

@@ -126,7 +126,6 @@ public class AuthController {
     @PutMapping("/me")
     public ResponseEntity<?> updateCurrentUser(@Valid @RequestBody UserRequest userRequest) {
         try {
-            log.info("\nUser : " + userRequest.getId() + " | " + userRequest.getEmail() + " | " + userRequest.getUsername() + " | " + userRequest.getPassword() + " is updating...");
             // Récupérer les informations de l'utilisateur courant
             UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 

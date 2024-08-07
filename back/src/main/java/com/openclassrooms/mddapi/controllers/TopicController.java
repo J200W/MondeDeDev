@@ -1,6 +1,7 @@
 package com.openclassrooms.mddapi.controllers;
 
 import com.openclassrooms.mddapi.models.Topic;
+import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.service.PostService;
 import com.openclassrooms.mddapi.service.SubscriptionService;
 import com.openclassrooms.mddapi.service.TopicService;
@@ -9,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +32,8 @@ public class TopicController {
     private SubscriptionService subscriptionService;
     @Autowired
     private PostService postService;
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * Récupérer tous les sujets de discussion
@@ -42,6 +47,24 @@ public class TopicController {
             return ResponseEntity.ok(topics);
         } catch (Exception e) {
             log.error("Error getting all topics", e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Récupérer les sujets non souscrit par un utilisateur
+     * @return - ResponseEntity
+     */
+    @GetMapping("/not-subscribed")
+    public ResponseEntity<List<Topic>> getNotFollowedTopics() {
+        try {
+            List<Topic> topics = topicService.findAll();
+            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Integer userId = userRepository.findByUsername(userDetails.getUsername()).get().getId();
+            topics.removeIf(topic -> subscriptionService.findByTopicIdAndUserId(topic.getId(), userId));
+            return ResponseEntity.ok(topics);
+        } catch (Exception e) {
+            log.error("Error getting not followed topics", e);
             return ResponseEntity.badRequest().build();
         }
     }

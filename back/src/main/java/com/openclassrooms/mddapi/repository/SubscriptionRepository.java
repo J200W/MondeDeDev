@@ -14,4 +14,5 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Inte
     Optional<List<Subscription>> findAllByUser_Id(Integer id);
     Optional<Subscription> findAllByTopic_id(Integer id);
     void deleteByTopicId(Integer topicId);
+    Optional<Subscription> findByTopicIdAndUserId(Integer topicId, Integer userId);
 }

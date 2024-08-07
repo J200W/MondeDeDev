@@ -14,7 +14,7 @@ import {SubscriptionService} from "../../core/services/subscription.service";
 })
 export class ThemeComponent implements OnInit {
 
-   private topics$: Observable<ThemeInterface[]> = this.themeService.getAll();
+   private topics$: Observable<ThemeInterface[]> = this.themeService.getNotSubscribed();
    public topics: any = [];
    private user = this.sessionService.user as User;
 
@@ -34,9 +34,10 @@ export class ThemeComponent implements OnInit {
 
    public subscribe(theme: ThemeInterface) {
       this.subscriptionService.subscribe(theme.id, this.sessionService.user?.id).subscribe(() => {
-         this.matSnackBar.open(`Abonné au thème: ${theme.title} !`, 'Close', {
+         this.matSnackBar.open(`Abonné au thème: ${theme.title}`, 'Close', {
             duration: 3000,
          });
+         this.topics = this.topics.filter((t: ThemeInterface) => t.id !== theme.id);
       });
    }
 }
