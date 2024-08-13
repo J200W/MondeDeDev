@@ -60,17 +60,25 @@ Avant de lancer l'application, assurez-vous de configurer les identifiants de co
 ## Lancer l'application
 
 1. Lancer le backend :
-```cd backend
-./mvnw spring-boot:run```
+    ```
+    cd backend
+    ./mvnw spring-boot:run
+    ```
 
 2. Lancer le frontend :
-```cd ../frontend
-ng serve```
+    ```
+    cd ../frontend
+    ng serve
+    ```
 
 3. Connectez-vous en tant qu'adminstateur avec les identifiants suivant : 
-```Nom d'utilisateur : admin
-Mot de passe : Adm!n2024```
+    ```
+    Nom d'utilisateur : admin
+    Mot de passe : Adm!n2024
+    ```
 
-ou en tant qu'utilisateur avec les identifiants suivant : 
-```Nom d'utilisateur : user
-Mot de passe : Us@R2024```
+4. Ou en tant qu'utilisateur avec les identifiants suivant : 
+    ```
+    Nom d'utilisateur : user
+    Mot de passe : Us@R2024
+    ```
