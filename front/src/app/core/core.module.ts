@@ -6,6 +6,7 @@ import {JwtInterceptor} from "./interceptors/jwt.interceptor";
 import {HeaderComponent} from "./layout/header/header.component";
 import {FooterComponent} from "./layout/footer/footer.component";
 import {MaterialModule} from "./material.module";
+import {CookieService} from "ngx-cookie-service";
 
 @NgModule({
    declarations: [
@@ -23,6 +24,7 @@ import {MaterialModule} from "./material.module";
          provide: HTTP_INTERCEPTORS, useClass:
          JwtInterceptor, multi: true
       },
+      CookieService
    ],
    exports: [
       MaterialModule,

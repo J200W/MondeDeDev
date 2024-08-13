@@ -8,6 +8,7 @@ import {RegisterRequest} from "../../interfaces/registerRequest.interface";
 import {AuthSuccess} from "../../interfaces/authSuccess.interface";
 import {User} from "../../../../core/models/user.interface";
 import {StrongPasswordRegx} from "../../../../core/constants/strong-password-regex";
+import {CookieService} from "ngx-cookie-service";
 
 @Component({
    selector: 'app-register',
@@ -64,6 +65,7 @@ export class RegisterComponent implements OnInit {
        private authService: AuthService,
        private fb: FormBuilder,
        private router: Router,
+       private cookieService: CookieService,
        private sessionService: SessionService
    ) {}
 
@@ -84,7 +86,7 @@ export class RegisterComponent implements OnInit {
           .subscribe(
               pipe(
                   (response: AuthSuccess) => {
-                     localStorage.setItem('token', response.accessToken);
+                     this.cookieService.set('token', response.accessToken);
                      this.authService.me().subscribe((user: User) => {
                         this.sessionService.logIn(user);
                         this.router.navigate(['/article']);

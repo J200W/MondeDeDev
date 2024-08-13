@@ -5,6 +5,7 @@ import {LoginRequest} from '../interfaces/loginRequest.interface';
 import {AuthSuccess} from '../interfaces/authSuccess.interface';
 import {RegisterRequest} from '../interfaces/registerRequest.interface';
 import {User} from 'src/app/core/models/user.interface';
+import {CookieService} from "ngx-cookie-service";
 
 @Injectable({
    providedIn: 'root',
@@ -19,7 +20,7 @@ export class AuthService {
     */
    private pathService: string = 'http://localhost:8080/api/auth';
 
-   constructor(private httpClient: HttpClient) {
+   constructor(private httpClient: HttpClient, private cookieService: CookieService) {
    }
 
    /**
@@ -63,7 +64,7 @@ export class AuthService {
    public me(): Observable<User> {
       return this.httpClient.get<User>(`${this.pathService}/me`, {
          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${this.cookieService.get('token')}`
          },
       });
    }

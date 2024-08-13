@@ -28,6 +28,10 @@
     cursor: pointer;
 }
 
+.nav-links-mobile {
+    display: none;
+}
+
 .link {
     color: #1A1A1A;
     transition: color 0.3s;
@@ -53,12 +57,23 @@
 .logo {
     width: fit-content;
     height: 100%;
+    display: flex;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: pointer;
 }
 
 .logo > img {
     height: 100%;
     width: auto;
-    max-width: 200px;
+    max-height: 50px;
+    margin: auto;
 }
 
 @media screen and (max-width: 768px) {
@@ -70,5 +85,29 @@
 @media screen and (max-width: 500px) {
     .nav-links {
         display: none;
+    }
+
+    .nav-links-mobile {
+        display: block;
+
+        .icon {
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            cursor: pointer;
+            color: #1A1A1A;
+        }
+
+        .menu, .close {
+            display: none;
+        }
+
+        .active {
+            display: flex;
+        }
+
+        .nav-links-mobile-list {
+            display: none;
+        }
     }
 }

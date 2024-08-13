@@ -11,7 +11,7 @@ import {User} from "../../models/user.interface";
    styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
-   public isVisible: boolean = false;
+   public menuIsVisible: boolean = false;
    public isLogged$: Observable<boolean>;
 
    constructor(
@@ -28,6 +28,11 @@ export class HeaderComponent implements OnInit {
 
    public currentUrl(): string {
       return this.router.url;
+   }
+
+   public toggleMenu() {
+      this.menuIsVisible = !this.menuIsVisible;
+      console.log(document.getElementsByClassName('menu'));
    }
 
    public logout(): void {

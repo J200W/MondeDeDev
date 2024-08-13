@@ -7,6 +7,7 @@ import {AuthService} from "../../service/auth.service";
 import {AuthSuccess} from "../../interfaces/authSuccess.interface";
 import {LoginRequest} from "../../interfaces/loginRequest.interface";
 import {User} from "../../../../core/models/user.interface";
+import {CookieService} from "ngx-cookie-service";
 
 @Component({
    selector: 'app-login',
@@ -39,6 +40,7 @@ export class LoginComponent implements OnInit {
    constructor(private authService: AuthService,
                private fb: FormBuilder,
                private router: Router,
+               private cookieService: CookieService,
                private sessionService: SessionService) {
    }
 
@@ -46,7 +48,7 @@ export class LoginComponent implements OnInit {
       const loginRequest = this.form.value as LoginRequest;
       this.authSubscription = this.authService.login(loginRequest).subscribe(
           (response: AuthSuccess) => {
-             localStorage.setItem('token', response.accessToken);
+             this.cookieService.set('token', response.accessToken);
              this.authService.me().subscribe((user: User) => {
                 this.sessionService.logIn(user);
                 this.router.navigate(['/article']);

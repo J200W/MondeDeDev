@@ -17,5 +17,22 @@
                 <img alt="avatar" class="avatar" src="/assets/account.svg">
             </span>
         </div>
+        <div *ngIf="(isLogged$ | async)" class="nav-links-mobile">
+            <mat-icon *ngIf="!menuIsVisible"  class="icon menu active" (click)="toggleMenu()">menu</mat-icon>
+            <div class="nav-links-mobile-box">
+                <mat-icon *ngIf="menuIsVisible" class="icon close" (click)="toggleMenu()">close</mat-icon>
+                <div class="nav-links-mobile-list">
+                    <span routerLinkActive="active" class="link" routerLink="article">Articles</span>
+                    <span routerLinkActive="active" class="link" routerLink="theme">Thèmes</span>
+                    <span *ngIf="currentUrl() === '/me'" class="link" routerLink="me">
+                        <img alt="avatar" class="avatar" src="/assets/account_active.svg">
+                    </span>
+                            <span *ngIf="currentUrl() !== '/me'" class="link" routerLink="me">
+                        <img alt="avatar" class="avatar" src="/assets/account.svg">
+                    </span>
+                </div>
+            </div>
+
+        </div>
     </div>
 </mat-toolbar>

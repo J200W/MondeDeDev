@@ -3,6 +3,10 @@
     padding-block: 25px;
     margin: auto;
 
+    @media screen and (max-width: 768px) {
+        padding-inline: 20px;
+    }
+
     h1 {
         text-align: center;
         margin-block: 1em;
@@ -45,6 +49,14 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
         gap: 1em;
+
+        @media screen and (max-width: 768px) {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+
+        @media screen and (max-width: 450px) {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        }
 
         .sub {
             display: flex;
