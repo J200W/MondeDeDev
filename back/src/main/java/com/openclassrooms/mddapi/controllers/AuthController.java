@@ -13,8 +13,6 @@ import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.security.jwt.JwtUtils;
 import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,7 +36,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     /**
      * AuthenticationManager est utilisé pour l'authentification de l'utilisateur
      */

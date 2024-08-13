@@ -10,7 +10,9 @@
 
     .top-page {
         margin-bottom: 1em;
-        padding: 0 40px;
+        width: 90%;
+        display: flex;
+        margin-inline: auto;
         display: flex;
         flex-direction: column;
 

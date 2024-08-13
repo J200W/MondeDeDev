@@ -52,8 +52,6 @@ export class MeComponent implements OnInit {
          this.profileForm.patchValue(user);
       });
 
-      const userId = this.sessionService.user?.id;
-
       this.subscriptionService.getSubscriptions().subscribe((subscriptions) => {
          this.subscriptions = subscriptions;
       });
@@ -93,6 +91,7 @@ export class MeComponent implements OnInit {
 
    public logOut(): void {
       this.sessionService.logOut();
+      console.log('logout');
       this.router.navigate(['/']);
    }
 }

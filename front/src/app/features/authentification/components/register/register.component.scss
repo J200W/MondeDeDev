@@ -2,6 +2,9 @@
     margin: 40px auto auto;
     width: 70%;
     max-width: 400px;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
 }
 
 .register > mat-card {

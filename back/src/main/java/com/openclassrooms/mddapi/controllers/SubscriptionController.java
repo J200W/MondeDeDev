@@ -3,8 +3,6 @@ package com.openclassrooms.mddapi.controllers;
 import com.openclassrooms.mddapi.models.Subscription;
 import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
 import com.openclassrooms.mddapi.service.SubscriptionService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +19,6 @@ import java.util.List;
 @RequestMapping("/api/subscription")
 public class SubscriptionController {
 
-    private static final Logger log = LoggerFactory.getLogger(SubscriptionController.class);
     @Autowired
     private SubscriptionService subscriptionService;
 

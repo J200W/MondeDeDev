@@ -1,7 +1,6 @@
 package com.openclassrooms.mddapi.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.experimental.Accessors;
 import org.springframework.lang.NonNull;
 
@@ -52,6 +51,7 @@ public class User {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "id_user"), inverseJoinColumns = @JoinColumn(name = "id_role"))
+    @Builder.Default
     private Set<Role> role = new HashSet<>();
 
     /**

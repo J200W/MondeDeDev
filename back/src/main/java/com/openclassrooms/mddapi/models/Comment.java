@@ -34,5 +34,6 @@ public class Comment {
     private String content;
 
     @Column(name = "date")
+    @Builder.Default
     public LocalDateTime date = LocalDateTime.now();
 }

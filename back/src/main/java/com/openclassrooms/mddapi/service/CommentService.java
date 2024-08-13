@@ -1,7 +1,6 @@
 package com.openclassrooms.mddapi.service;
 
 import com.openclassrooms.mddapi.models.Comment;
-import com.openclassrooms.mddapi.models.Post;
 import com.openclassrooms.mddapi.repository.CommentRepository;
 import org.springframework.stereotype.Service;
 

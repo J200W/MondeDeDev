@@ -9,7 +9,9 @@
 
     .top-page {
         margin-bottom: 1em;
-        padding: 0 40px;
+        width: 90%;
+        display: flex;
+        margin-inline: auto;
         display: flex;
         flex-direction: column;
 
@@ -33,6 +35,10 @@
         max-width: 900px;
         margin: auto;
 
+        @media screen and (max-width: 768px) {
+            width: 90%;
+        }
+
         .article-header, .article-sub-header, .article-content {
             margin-bottom: 1em;
         }
@@ -44,11 +50,22 @@
 
         .article-sub-header {
             display: flex;
+            flex-wrap: wrap;
             flex-direction: row;
             font-size: 1em;
             font-weight: 400;
             color: #999;
             gap: 1em;
+
+            @media screen and (max-width: 768px) {
+                p:last-child {
+                    flex: 0 0 100%;
+                }
+                p {
+                    flex: 1;
+                }
+                gap: 0;
+            }
         }
 
         .article-content {
@@ -96,6 +113,21 @@
                     background-color: #EEE;
                     padding: 1em;
                     border-radius: 5px;
+                    box-sizing: border-box;
+                }
+
+                @media screen and (max-width: 768px) {
+                    flex-direction: column;
+
+                    .comment-left {
+                        width: 100%;
+                        flex-direction: row;
+                        justify-content: space-between;
+                    }
+
+                    .comment-right {
+                        width: 100%;
+                    }
                 }
             }
 

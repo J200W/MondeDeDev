@@ -46,6 +46,7 @@ public class Post {
     public String content;
 
     @Column(name = "date")
+    @Builder.Default
     public LocalDateTime date = LocalDateTime.now();
 
     @ManyToOne
