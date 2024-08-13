@@ -1,0 +1,97 @@
+#articles {
+    padding-inline: 50px;
+    padding-top: 2em;
+
+    .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2em;
+    }
+
+    @media screen and (max-width: 768px) {
+        .top {
+            flex-direction: column;
+
+            button {
+                margin-bottom: 1em;
+            }
+        }
+    }
+
+    .articles {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        gap: 1em;
+
+        .article {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1em;
+            padding: 16px;
+            border-radius: 5px;
+            box-shadow: none;
+            background-color: #F6F6F6;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+
+            mat-card-header {
+                display: flex;
+                flex-direction: column;
+
+                ::ng-deep .mat-card-header-text {
+                    margin: 0;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 1; /* number of lines to show */
+                    line-clamp: 1;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+
+                ::ng-deep mat-card-header, ::ng-deep .mat-card-subtitle:not(:first-child) {
+                    margin-top: 0;
+                }
+            }
+
+            .subtitle {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+
+                mat-card-subtitle {
+                    margin-inline: 3px;
+                }
+            }
+
+            mat-card-content {
+                margin-inline: 3px;
+
+                p {
+                    overflow: hidden;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 3; /* number of lines to show */
+                    line-clamp: 3;
+                    -webkit-box-orient: vertical;
+                }
+            }
+        }
+
+        .article:hover {
+            background-color: #EAEAEA;
+            transform: scale(1.005);
+        }
+    }
+}
+
+@media screen and (max-width: 768px) {
+    #articles {
+        padding-inline: 10px;
+
+        .articles {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+    }
+
+}

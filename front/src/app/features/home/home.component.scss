@@ -1,0 +1,46 @@
+.center {
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.home-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.home-row > a {
+    margin: 10px;
+    text-decoration: none;
+    color: black;
+}
+
+img {
+    width: auto;
+    height: 30vw;
+    margin-bottom: 30px;
+    max-height: 400px;
+    object-fit: cover;
+}
+
+h1 {
+    text-align: center;
+    font-size: 1.8rem;
+    padding: 0 20px;
+}
+
+@media screen and (max-width: 768px) {
+    .center {
+        height: 80vh;
+    }
+
+    .home-row {
+        flex-direction: column;
+    }
+}

@@ -1,0 +1,35 @@
+.login {
+    margin: 40px auto auto;
+    width: 70%;
+    max-width: 400px;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+}
+
+.login > mat-card {
+    border: none;
+    box-shadow: none;
+}
+
+mat-card-header {
+    text-align: center;
+    width: 100%;
+    display: block;
+}
+
+mat-form-field {
+    width: 100%;
+}
+
+.login-form {
+    margin-top: 20px;
+}
+
+.login-actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: auto;
+    width: fit-content;
+}

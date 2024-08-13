@@ -1,0 +1,87 @@
+.register {
+    margin: 40px auto auto;
+    width: 70%;
+    max-width: 400px;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+}
+
+.register > mat-card {
+    border: none;
+    box-shadow: none;
+}
+
+mat-card-header {
+    text-align: center;
+    width: 100%;
+    display: block;
+}
+
+mat-form-field {
+    width: 100%;
+}
+
+.register-form {
+    margin-top: 20px;
+}
+
+.register-actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: auto;
+    width: fit-content;
+}
+
+.pwd-check {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    width: 100%;
+    margin: 20px 0;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.pwd-check span {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+    padding: 5px;
+    border-radius: 3px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.pwd-incorrect {
+    color: #d9534f;
+    background-color: #f2dede;
+}
+
+.pwd-correct {
+    color: #5cb85c;
+    background-color: #dff0d8;
+}
+
+.pwd-check span::before {
+    content: '✗';
+    margin-right: 10px;
+    color: #d9534f;
+    font-weight: bold;
+}
+
+.pwd-correct::before {
+    content: '✓' !important;
+    color: #5cb85c !important;
+}
+
+.pwd-check span.pwd-incorrect:hover {
+    background-color: #f7d3d3;
+}
+
+.pwd-check span.pwd-correct:hover {
+    background-color: #c3e6c3;
+}

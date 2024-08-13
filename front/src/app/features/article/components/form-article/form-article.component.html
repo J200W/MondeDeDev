@@ -1,0 +1,34 @@
+<div id="form-article">
+    <div class="top-page">
+        <a routerLink="/article">
+            <mat-icon>keyboard_backspace</mat-icon>
+            Retour
+        </a>
+        <h1>Créer un nouvel article</h1>
+    </div>
+    <form (ngSubmit)="submit()" [formGroup]="articleForm">
+        <mat-form-field appearance="outline">
+            <mat-label>Thème</mat-label>
+            <mat-select formControlName="topic">
+                <mat-option *ngFor="let topic of selectedTopic" [value]="topic.id">{{ topic.title }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" fxFlex>
+            <mat-label>Titre</mat-label>
+            <input formControlName="title" matInput rows="8" type="text">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" fxFlex>
+            <mat-label>Contenu de l'article</mat-label>
+            <textarea formControlName=content matInput rows="8"></textarea>
+        </mat-form-field>
+
+        <button *ngIf="!onUpdate" [disabled]="articleForm.invalid" color="primary" mat-raised-button type="submit">
+            Publier
+        </button>
+        <button *ngIf="onUpdate" [disabled]="articleForm.invalid" color="primary" mat-raised-button type="submit">Mettre
+            à jour
+        </button>
+    </form>
+</div>

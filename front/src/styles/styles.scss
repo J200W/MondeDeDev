@@ -1,4 +1,34 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #7550ec;
+    color: #FFF;
+    border: 1px solid #7550ec;
+}
+
+.btn-secondary {
+    background-color: #FFF;
+    color: #1A1A1A;
+    border: 1px solid #1A1A1A;
+}
+
+.error {
+    color: red;
+}
