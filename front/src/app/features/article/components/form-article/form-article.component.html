@@ -24,11 +24,8 @@
             <textarea formControlName=content matInput rows="8"></textarea>
         </mat-form-field>
 
-        <button *ngIf="!onUpdate" [disabled]="articleForm.invalid" color="primary" mat-raised-button type="submit">
+        <button [disabled]="articleForm.invalid" color="primary" mat-raised-button type="submit">
             Publier
-        </button>
-        <button *ngIf="onUpdate" [disabled]="articleForm.invalid" color="primary" mat-raised-button type="submit">Mettre
-            à jour
         </button>
     </form>
 </div>

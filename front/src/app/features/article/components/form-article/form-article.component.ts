@@ -15,7 +15,6 @@ import {Topic} from "../../../../core/models/topic.interface";
 })
 export class FormArticleComponent implements OnInit {
 
-   public onUpdate: boolean = false;
    public articleForm: FormGroup = this.fb.group({
       topic: ['', [Validators.required]],
       title: ['', [Validators.required]],
@@ -38,18 +37,7 @@ export class FormArticleComponent implements OnInit {
 
    ngOnInit(): void {
       const url = this.router.url;
-      if (url.includes('update')) {
-         this.onUpdate = true;
-         this.id = this.route.snapshot.paramMap.get('id')!;
-
-         this.articleService
-             .getPost(this.id)
-             .subscribe((article: Article) => {
-                this.initForm(article);
-             });
-      } else {
-         this.initForm();
-      }
+      this.initForm();
       this.topicService.getAll().subscribe((topics) => {
          this.selectedTopic = topics;
       });
@@ -67,23 +55,14 @@ export class FormArticleComponent implements OnInit {
          }
       };
 
-      if (this.onUpdate) {
-         this.articleService.update(articleDate).subscribe(() => {
-            this.router.navigate(['/article']);
-            this.matSnackBar.open('Article modifié', 'Fermer', {
-               duration: 2000,
-            });
+      this.articleService
+      .create(articleDate)
+      .subscribe(() => {
+         this.router.navigate(['/article']);
+         this.matSnackBar.open('Article créé', 'Fermer', {
+            duration: 2000,
          });
-      } else {
-         this.articleService
-             .create(articleDate)
-             .subscribe(() => {
-                this.router.navigate(['/article']);
-                this.matSnackBar.open('Article créé', 'Fermer', {
-                   duration: 2000,
-                });
-             });
-      }
+      });
    }
 
    private initForm(article?: Article): void {
