@@ -6,6 +6,9 @@ import {CookieService} from "ngx-cookie-service";
 @Injectable({
    providedIn: 'root',
 })
+/**
+ * Service pour la session utilisateur
+ */
 export class SessionService {
    public isLogged = false;
    public user: User | undefined;
@@ -14,6 +17,10 @@ export class SessionService {
 
    constructor(private cookieService: CookieService) {}
 
+   /**
+    * Observable pour savoir si l'utilisateur est connecté
+    * @returns {Observable<boolean>}
+    */
    public $isLogged(): Observable<boolean> {
       return this.isLoggedSubject.asObservable();
    }

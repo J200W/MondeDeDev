@@ -6,6 +6,9 @@ import {HttpClient} from "@angular/common/http";
 @Injectable({
    providedIn: 'root',
 })
+/**
+ * Service pour les commentaires
+ */
 export class CommentService {
 
    /**

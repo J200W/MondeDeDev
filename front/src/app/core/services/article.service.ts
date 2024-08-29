@@ -6,6 +6,9 @@ import {Article} from "../models/article.interface";
 @Injectable({
    providedIn: 'root',
 })
+/**
+ * Service pour les articles
+ */
 export class ArticleService {
 
    /**

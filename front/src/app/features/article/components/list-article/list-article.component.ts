@@ -1,8 +1,8 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {SessionService} from "../../../../core/services/session.service";
 import {ArticleService} from "../../../../core/services/article.service";
-import {Observable} from "rxjs";
+import {Observable, Subscription} from "rxjs";
 import {Article} from "../../../../core/models/article.interface";
 
 @Component({
@@ -10,10 +10,11 @@ import {Article} from "../../../../core/models/article.interface";
    templateUrl: './list-article.component.html',
    styleUrls: ['./list-article.component.scss']
 })
-export class ListArticleComponent implements OnInit {
+export class ListArticleComponent implements OnInit, OnDestroy {
    public sortValue: string = 'none';
    private articles$: Observable<Article[]> = this.articleService.getAll();
    private articles: any = [];
+   private articleSubscription!: Subscription;
 
    constructor(
        private sessionService: SessionService,
@@ -23,10 +24,16 @@ export class ListArticleComponent implements OnInit {
    }
 
    ngOnInit(): void {
-      this.articles$.subscribe((response) => {
+      this.articleSubscription = this.articles$.subscribe((response) => {
          this.articles = response;
       });
    }
+
+    ngOnDestroy(): void {
+        if (this.articleSubscription) {
+            this.articleSubscription.unsubscribe();
+        }
+    }
 
    public getArticles(): Article[] {
       return this.articles;
