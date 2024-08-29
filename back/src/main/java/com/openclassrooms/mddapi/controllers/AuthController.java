@@ -75,7 +75,8 @@ public class AuthController {
         try {
 
             // Authentification de l'utilisateur avec l'email et le mot de passe
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmailOrUsername(), loginRequest.getPassword()));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    loginRequest.getEmailOrUsername(), loginRequest.getPassword()));
 
             // Mettre l'authentification dans le contexte de sécurité de Spring
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -85,12 +86,15 @@ public class AuthController {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal(); // cast ?
 
             // Récupérer les roles de l'utilisateur
-            List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+            List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
 
             // Retourner le token JWT et les détails de l'utilisateur
-            return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
+            return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(),
+                    userDetails.getEmail(), roles));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Erreur lors de l'authentification de l'utilisateur ! : " + e.getMessage()));
+            return ResponseEntity.badRequest().body(
+                    new MessageResponse("Erreur lors de l'authentification de l'utilisateur ! : " + e.getMessage()));
         }
     }
 
@@ -102,20 +106,25 @@ public class AuthController {
     public ResponseEntity<?> getCurrentUser() {
         try {
             // Récupérer les informations de l'utilisateur courant
-            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
 
             // Récupérer les roles de l'utilisateur
-            List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+            List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
 
             // Retourner les informations de l'utilisateur courant
-            return ResponseEntity.ok(new JwtResponse(null, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
+            return ResponseEntity.ok(new JwtResponse(null, userDetails.getId(), userDetails.getUsername(),
+                    userDetails.getEmail(), roles));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Erreur lors de la récupération des informations de l'utilisateur !"));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Erreur lors de la récupération des informations de l'utilisateur !"));
         }
     }
 
     /**
-     * Cette méthode est utilisée pour mettre à jour les informations de l'utilisateur
+     * Cette méthode est utilisée pour mettre à jour les informations de
+     * l'utilisateur
      *
      * @param userRequest
      * @return
@@ -124,7 +133,8 @@ public class AuthController {
     public ResponseEntity<?> updateCurrentUser(@Valid @RequestBody UserRequest userRequest) {
         try {
             // Récupérer les informations de l'utilisateur courant
-            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
 
             // Vérifier si l'utilisateur existe dans la base de données
             if (!userRepository.existsById(userRequest.getId())) {
@@ -175,6 +185,13 @@ public class AuthController {
                 return ResponseEntity
                         .badRequest()
                         .body(new MessageResponse("Error: Email is already in use!"));
+            }
+
+            // Vérifier si le nom d'utilisateur est déjà utilisé
+            if (userRepository.existsByUsername(signUpRequest.getName())) {
+                return ResponseEntity
+                        .badRequest()
+                        .body(new MessageResponse("Error: Username is already in use!"));
             }
 
             // Créer un nouvel utilisateur
