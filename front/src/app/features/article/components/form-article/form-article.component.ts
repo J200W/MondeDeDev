@@ -54,11 +54,34 @@ export class FormArticleComponent implements OnInit, OnDestroy {
             this.articleSubscription.unsubscribe();
         }
     }
+    
+    private initForm(article?: Article): void {
+        if (
+            article !== undefined &&
+            article?.user?.id == this.sessionService.user!.id
+        ) {
+            this.articleForm = this.fb.group({
+                topic: [article ? article.topic.id : '', [Validators.required]],
+                title: [article ? article.title : '', [Validators.required]],
+                content: [
+                    article ? article.content : '',
+                    [Validators.required, Validators.maxLength(2000)],
+                ],
+            });
+        }
+    }
 
     public submit(): void {
-        const articleDate = {
-            title: this.articleForm!.get('title')?.value,
-            content: this.articleForm!.get('content')?.value.replace(/\n/g, '<br>'),
+        if (this.articleForm!.get('title')?.value.trim() === '') {
+            this.articleForm!.get('title')?.setValue('');
+        }
+        if (this.articleForm!.get('content')?.value.trim() === '') {
+            this.articleForm!.get('content')?.setValue('');
+        }
+        
+        const newArticle = {
+            title: this.articleForm!.get('title')?.value.trim(),
+            content: this.articleForm!.get('content')?.value.replace(/\n/g, '<br>').trim(),
             user: {
                 id: this.sessionService.user!.id,
             },
@@ -68,7 +91,7 @@ export class FormArticleComponent implements OnInit, OnDestroy {
         };
 
         this.articleSubscription = this.articleService
-            .create(articleDate)
+            .create(newArticle)
             .subscribe({
                 next: () => {
                     this.router.navigate(['/article']);
@@ -85,21 +108,5 @@ export class FormArticleComponent implements OnInit, OnDestroy {
                     this.articleSubscription.unsubscribe();
                 }
             });
-    }
-
-    private initForm(article?: Article): void {
-        if (
-            article !== undefined &&
-            article?.user?.id == this.sessionService.user!.id
-        ) {
-            this.articleForm = this.fb.group({
-                topic: [article ? article.topic.id : '', [Validators.required]],
-                title: [article ? article.title : '', [Validators.required]],
-                content: [
-                    article ? article.content : '',
-                    [Validators.required, Validators.maxLength(2000)],
-                ],
-            });
-        }
     }
 }
