@@ -108,13 +108,13 @@ export class MeComponent implements OnInit, OnDestroy {
         this.subSubscription2 = this.subscriptionService.unsubscribe(subscription.id).subscribe({
             next: () => {
                 this.subscriptions = this.subscriptions.filter((sub) => sub.id !== subscription.id);
-                this.matSnackBar.open('Désabonner à: ' + subscription.topic.title, 'Fermer', {
+                this.matSnackBar.open('Vous êtes désabonné à: ' + subscription.topic.title, 'Fermer', {
                     duration: 5000,
                 });
             },
             error: (error: any) => {
                 this.subSubscription2.unsubscribe();
-                this.matSnackBar.open("Erreur lors de la désinscription", 'Fermer', {
+                this.matSnackBar.open("Erreur lors du désabonnement", 'Fermer', {
                     duration: 5000,
                 });
             },

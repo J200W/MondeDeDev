@@ -67,13 +67,10 @@ export class LoginComponent implements OnInit, OnDestroy {
                 this.authSubscriptionMe = this.authService.me().subscribe((user: User) => {
                     this.sessionService.logIn(user);
                     this.router.navigate(['/article']);
-                    this.authSubscription.unsubscribe();
                 });
-                this.router.navigate(['/article']);
             },
             error: () => {
                 this.onError = true;
-                this.authSubscription.unsubscribe();
             },
             complete: () => {
                 this.authSubscription.unsubscribe();

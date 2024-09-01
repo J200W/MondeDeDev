@@ -15,7 +15,6 @@ import { Subscription } from 'rxjs';
 })
 export class DetailArticleComponent implements OnInit, OnDestroy {
 
-    public canModify: boolean = false;
     public article: any;
     public comments: Comment[] = [];
     public commentForm: FormGroup = this.fb.group({
@@ -39,10 +38,29 @@ export class DetailArticleComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.sessionService.$isLogged().subscribe(isLogged => {
+            if (isLogged && this.sessionService.user) {
+                console.log('user.id : ', this.sessionService.user.id);
+                this.setupArticle();
+            }
+        });
+    }
+
+    ngOnDestroy(): void {
+        if (this.commentSubscription) {
+            this.commentSubscription.unsubscribe();
+        }
+        if (this.commentSubscription2) {
+            this.commentSubscription2.unsubscribe();
+        }
+    }
+
+    private setupArticle(): void {
         this.id = this.route.snapshot.paramMap.get('id')!;
         this.articleService.getPost(this.id).subscribe((article) => {
             this.article = article;
-            this.canModify = this.sessionService.user!.id === article.user.id;
+            console.log('user.id : ', this.sessionService.user!.id);
+            console.log('article.user.id', article.user.id);
             this.commentForm = this.fb.group({
                 user: [this.sessionService.user!.id],
                 post: [article.id],
@@ -56,15 +74,6 @@ export class DetailArticleComponent implements OnInit, OnDestroy {
                 this.router.navigate(['/404']);
             }
         });
-    }
-
-    ngOnDestroy(): void {
-        if (this.commentSubscription) {
-            this.commentSubscription.unsubscribe();
-        }
-        if (this.commentSubscription2) {
-            this.commentSubscription2.unsubscribe();
-        }
     }
 
     public submitComment(): void {
