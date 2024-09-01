@@ -40,7 +40,6 @@ export class DetailArticleComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.sessionService.$isLogged().subscribe(isLogged => {
             if (isLogged && this.sessionService.user) {
-                console.log('user.id : ', this.sessionService.user.id);
                 this.setupArticle();
             }
         });
@@ -59,8 +58,6 @@ export class DetailArticleComponent implements OnInit, OnDestroy {
         this.id = this.route.snapshot.paramMap.get('id')!;
         this.articleService.getPost(this.id).subscribe((article) => {
             this.article = article;
-            console.log('user.id : ', this.sessionService.user!.id);
-            console.log('article.user.id', article.user.id);
             this.commentForm = this.fb.group({
                 user: [this.sessionService.user!.id],
                 post: [article.id],

@@ -47,7 +47,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         // Emit the destroy signal and complete the subject to clean up
         this.destroy$.next();
         this.destroy$.complete();
-        console.log('HeaderComponent destroyed');
     }
 
     public currentUrl(): string {
