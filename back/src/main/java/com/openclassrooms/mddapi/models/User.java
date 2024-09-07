@@ -7,6 +7,7 @@ import org.springframework.lang.NonNull;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -64,6 +65,22 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+        /**
+     * Constructeur avec paramètres, avec l'identifiant
+     * @param id
+     * @param username
+     * @param email
+     */
+    public User(Integer id, String username, String email, List<String> role) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.role = new HashSet<>();
+        for (String r : role) {
+            this.role.add(new Role(ERole.valueOf(r)));
+        }
     }
 }
 

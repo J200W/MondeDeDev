@@ -1,10 +1,15 @@
 package com.openclassrooms.mddapi.controllers;
 
+import com.openclassrooms.mddapi.dto.SubscriptionDto;
+import com.openclassrooms.mddapi.exception.AlreadyInUseException;
+import com.openclassrooms.mddapi.exception.ResourceNotFoundException;
 import com.openclassrooms.mddapi.models.Subscription;
 import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
 import com.openclassrooms.mddapi.service.SubscriptionService;
+import com.openclassrooms.mddapi.utils.ModelMapperService;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +19,7 @@ import java.util.List;
  * La classe SubscriptionController est utilisée pour gérer les souscriptions
  * des utilisateurs aux sujets de discussion
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/subscription")
 public class SubscriptionController {
@@ -22,24 +27,26 @@ public class SubscriptionController {
     @Autowired
     private SubscriptionService subscriptionService;
 
+    @Autowired
+    private ModelMapperService modelMapperService;
+
     /**
      * Récupérer toutes les souscriptions d'un utilisateur
      *
-     * @return - ResponseEntity
+     * @return - List<SubscriptionDto>
      */
     @GetMapping("/me")
-    public ResponseEntity<List<Subscription>> getAllSubscriptionsByUser() {
+    public List<SubscriptionDto> getAllSubscriptionsByUser() {
         try {
-            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
             Integer userId = userDetails.getId();
             List<Subscription> subscriptions = subscriptionService.findAllSubscriptionByUser(userId).get();
-            for (Subscription subscription : subscriptions) {
-                subscription.getUser().setPassword("null");
-                subscription.getUser().setRole(null);
-            }
-            return ResponseEntity.ok(subscriptions);
+            List<SubscriptionDto> subscriptionDtos = modelMapperService.convertSubsToSubDtos(subscriptions);
+
+            return subscriptionDtos;
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            throw new RuntimeException("Erreur: Impossible de récupérer les abonnements");
         }
     }
 
@@ -47,15 +54,17 @@ public class SubscriptionController {
      * Récupérer une souscription par son identifiant
      *
      * @param id - L'identifiant de la souscription
-     * @return - ResponseEntity
+     * @return - SubscriptionDto
      */
     @GetMapping("/sub/{id}")
-    public ResponseEntity<Subscription> getSubscriptionById(@PathVariable Integer id) {
+    public SubscriptionDto getSubscriptionById(@PathVariable Integer id) {
         try {
             Subscription subscription = subscriptionService.findSubscriptionById(id);
-            return ResponseEntity.ok(subscription);
+            SubscriptionDto subscriptionDto = modelMapperService.getModelMapper().map(subscription,
+                    SubscriptionDto.class);
+            return subscriptionDto;
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            throw new ResourceNotFoundException("Erreur: Impossible de récupérer l'abonnement");
         }
     }
 
@@ -63,15 +72,30 @@ public class SubscriptionController {
      * Créer une souscription
      *
      * @param subscription - La souscription à créer
-     * @return - ResponseEntity
+     * @return - SubscriptionDto
      */
-    @PostMapping("/sub")
-    public ResponseEntity<Subscription> createSubscription(@RequestBody Subscription subscription) {
+    @PostMapping("/sub/{topic}")
+    public SubscriptionDto createSubscription(@PathVariable Integer topic) {
         try {
+            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
+            Integer userId = userDetails.getId();
+            if (subscriptionService.existsByTopicIdAndUserId(topic, userId)) {
+                throw new AlreadyInUseException("Erreur: L'abonnement existe déjà");
+            }
+            Subscription subscription = new Subscription(
+                    userId,
+                    topic);
             Subscription newSubscription = subscriptionService.create(subscription);
-            return ResponseEntity.ok(newSubscription);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            SubscriptionDto newSubscriptionDto = modelMapperService.getModelMapper().map(newSubscription,
+                    SubscriptionDto.class);
+            return newSubscriptionDto;
+        }
+        catch (AlreadyInUseException e) {
+            throw new AlreadyInUseException(e.getMessage());
+        }
+        catch (Exception e) {
+            throw new RuntimeException("Erreur: Impossible de créer l'abonnement");
         }
     }
 
@@ -79,15 +103,20 @@ public class SubscriptionController {
      * Supprimer une souscription
      *
      * @param id - L'identifiant de la souscription
-     * @return - ResponseEntity
+     * @return - void
      */
     @DeleteMapping("/sub/{id}")
-    public ResponseEntity<Void> deleteSubscription(@PathVariable Integer id) {
+    @ResponseStatus(value = HttpStatus.OK)
+    public void deleteSubscription(@PathVariable Integer id) {
         try {
+            if (subscriptionService.findSubscriptionById(id) == null) {
+                throw new ResourceNotFoundException("Erreur: L'abonnement n'existe pas");
+            }
             subscriptionService.delete(id);
-            return ResponseEntity.ok().build();
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            throw new RuntimeException("Erreur: Impossible de supprimer l'abonnement");
         }
     }
 }

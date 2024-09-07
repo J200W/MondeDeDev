@@ -53,7 +53,9 @@ public class SubscriptionService {
         return this.subscriptionRepository.save(subscription);
     }
 
-    public Boolean findByTopicIdAndUserId(Integer topicId, Integer userId) {
-        return this.subscriptionRepository.findByTopicIdAndUserIdOrderByIdDesc(topicId, userId).isPresent();
+    public Boolean existsByTopicIdAndUserId(Integer topicId, Integer userId) {
+        return this.subscriptionRepository.existsByTopicIdAndUserId(topicId, userId);
     }
+
+
 }

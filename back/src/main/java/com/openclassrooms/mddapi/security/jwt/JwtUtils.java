@@ -8,11 +8,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 
 import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 /*
  * JwtUtils est une classe qui fournit des méthodes pour générer un token JWT,
@@ -22,10 +25,12 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtils {
 
-    // Le logger est utilisé pour afficher des informations sur l'exécution du programme
+    // Le logger est utilisé pour afficher des informations sur l'exécution du
+    // programme
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    // jwtSecret est la clé secrète utilisée pour signer le token JWT et pour le valider
+    // jwtSecret est la clé secrète utilisée pour signer le token JWT et pour le
+    // valider
     @Value("${mdd.token.secret}")
     private String jwtSecret;
 
@@ -52,15 +57,26 @@ public class JwtUtils {
     }
 
     /*
-     * Cette méthode est utilisée pour obtenir la clé secrète à partir de la clé secrète
+     * Cette méthode est utilisée pour obtenir la clé secrète à partir de la clé
+     * secrète
      * jwtSecret
      */
     private Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
+    public String getJwtFromCookies(HttpServletRequest request) {
+        Cookie cookie = WebUtils.getCookie(request, "jwtToken");
+        if (cookie != null) {
+            return cookie.getValue();
+        } else {
+            return null;
+        }
+    }
+
     /*
-     * Cette méthode est utilisée pour obtenir le nom d'utilisateur à partir du token JWT
+     * Cette méthode est utilisée pour obtenir le nom d'utilisateur à partir du
+     * token JWT
      */
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key()).build()

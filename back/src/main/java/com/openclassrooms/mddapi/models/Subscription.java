@@ -33,4 +33,16 @@ public class Subscription {
     @ManyToOne
     @JoinColumn(name = "id_topic")
     private Topic topic;
+
+    public Subscription(User user, Topic topic) {
+        this.user = user;
+        this.topic = topic;
+    }
+
+    public Subscription(Integer userId, Integer topic) {
+        this.user = new User();
+        this.user.setId(userId);
+        this.topic = new Topic();
+        this.topic.setId(topic);
+    }
 }

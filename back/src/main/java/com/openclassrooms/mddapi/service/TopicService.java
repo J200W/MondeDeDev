@@ -1,5 +1,6 @@
 package com.openclassrooms.mddapi.service;
 
+import com.openclassrooms.mddapi.exception.ResourceNotFoundException;
 import com.openclassrooms.mddapi.models.Topic;
 import com.openclassrooms.mddapi.repository.TopicRepository;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,8 @@ public class TopicService {
     }
 
     public Topic findById(Integer id) {
-        return this.topicRepository.findById(id).orElse(null);
+        return this.topicRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Thème non trouvé avec l'id " + id));
     }
 
     public Topic update(Integer id, Topic topic) {

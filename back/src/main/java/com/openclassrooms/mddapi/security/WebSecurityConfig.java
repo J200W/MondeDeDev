@@ -92,6 +92,12 @@ public class WebSecurityConfig {
                 // authentifiés)
                 .requestMatchers("/api/auth/**").permitAll()
 
+                // les chemins de documentation Swagger (pour les utilisateurs non authentifiés)
+                .requestMatchers("/swagger-ui.html").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/v3/api-docs/**").permitAll()
+                .requestMatchers("/swagger-resources/**").permitAll()
+
                 // le chemin de l'API pour obtenir les informations de l'utilisateur actuel
                 .requestMatchers("/api/auth/me").authenticated()
 

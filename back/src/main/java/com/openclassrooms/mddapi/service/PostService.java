@@ -34,4 +34,8 @@ public class PostService {
     public void deleteByTopicId(Integer topicId) {
         this.postRepository.deleteByTopicId(topicId);
     }
+
+    public boolean findByTitle(String title) {
+        return this.postRepository.findByTitle(title).isPresent();
+    }
 }
