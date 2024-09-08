@@ -2,10 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { LoginRequest } from '../interfaces/loginRequest.interface';
-import { ResponseStatus } from '../interfaces/responseSuccess.interface';
+import { ResponseAPI } from '../interfaces/responseApiSuccess.interface';
 import { RegisterRequest } from '../interfaces/registerRequest.interface';
 import { User } from 'src/app/core/models/user.interface';
-import { environment } from 'src/environments/environment'; 
+import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',
@@ -26,14 +26,14 @@ export class AuthService {
     /**
      * Enregistre un utilisateur
      * @param {RegisterRequest} registerRequest
-     * @return {Observable<ResponseStatus>}
+     * @return {Observable<ResponseAPI>}
      * @memberof AuthService
      * @public
      */
 
-    public register(registerRequest: RegisterRequest): Observable<ResponseStatus> {
+    public register(registerRequest: RegisterRequest): Observable<ResponseAPI> {
         console.log('registerRequest', registerRequest);
-        return this.httpClient.post<ResponseStatus>(
+        return this.httpClient.post<ResponseAPI>(
             `${this.pathService}/register`,
             registerRequest
         );
@@ -42,13 +42,13 @@ export class AuthService {
     /**
      * Connecte un utilisateur
      * @param {LoginRequest} loginRequest
-     * @returns {Observable<AuthSuccess>}
+     * @returns {Observable<ResponseAPI>}
      * @memberof AuthService
      * @public
      */
 
-    public login(loginRequest: LoginRequest): Observable<ResponseStatus> {
-        return this.httpClient.post<ResponseStatus>(
+    public login(loginRequest: LoginRequest): Observable<ResponseAPI> {
+        return this.httpClient.post<ResponseAPI>(
             `${this.pathService}/login`,
             loginRequest
         );
@@ -72,7 +72,7 @@ export class AuthService {
      */
     public update(user: User): Observable<void> {
         return this.httpClient.put<void>(`${this.pathService}/me`, user);
-     }
+    }
 
     /**
      * Déconnecte l'utilisateur
@@ -86,7 +86,7 @@ export class AuthService {
 
     /**
      * Vérifie si l'utilisateur est connecté
-     * @returns {Observable<User>}
+     * @returns {Observable<boolean>}
      * @memberof AuthService
      * @public
      */

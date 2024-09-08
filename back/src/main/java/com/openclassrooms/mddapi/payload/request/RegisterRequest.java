@@ -2,8 +2,13 @@ package com.openclassrooms.mddapi.payload.request;
 
 import java.util.Set;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
+/**
+ * La classe RegisterRequest est utilisée pour stocker les informations d'inscription
+ */
+@Schema(name = "RegisterRequest", description = "La classe RegisterRequest est utilisée pour stocker les informations d'inscription")
 public class RegisterRequest {
     @NotBlank
     private String name;

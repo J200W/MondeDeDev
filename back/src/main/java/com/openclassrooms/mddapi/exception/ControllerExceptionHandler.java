@@ -15,19 +15,6 @@ import org.springframework.security.core.AuthenticationException;
 /**
  * La classe ControllerExceptionHandler permet de gérer les exceptions
  * générées par les contrôleurs de l'API.
- * Elle est caractérisée par :
- * 
- * @ExceptionHandler
- *                   La méthode qui gère les exceptions
- * @ResponseStatus
- *                 Le code de statut HTTP à renvoyer
- * @ResponseBody
- *               Indique que la valeur de retour de la méthode doit être
- *               utilisée
- *               comme corps de la réponse HTTP.
- * @ControllerAdvice
- *                   Indique que la classe fournit des conseils à tous les
- *                   contrôleurs.
  */
 public class ControllerExceptionHandler {
 
@@ -35,7 +22,7 @@ public class ControllerExceptionHandler {
      * Gère les exceptions BadRequestException.
      * @param e
      * @param request
-     * @return
+     * @return ErrorMessage
      */
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
@@ -53,7 +40,7 @@ public class ControllerExceptionHandler {
      * Gère les exceptions ResourceNotFoundException.
      * @param e
      * @param request
-     * @return
+     * @return ErrorMessage
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
@@ -71,7 +58,7 @@ public class ControllerExceptionHandler {
      * Gère les exceptions RuntimeException.
      * @param e
      * @param request
-     * @return
+     * @return ErrorMessage
      */
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
@@ -89,7 +76,7 @@ public class ControllerExceptionHandler {
      * Gère les exceptions AuthenticationException.
      * @param e
      * @param request
-     * @return
+     * @return ErrorMessage
      */
     @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
@@ -107,7 +94,7 @@ public class ControllerExceptionHandler {
      * Gère les exceptions AlreadyInUseException.
      * @param e
      * @param request
-     * @return
+     * @return ErrorMessage
      */
     @ExceptionHandler(AlreadyInUseException.class)
     @ResponseStatus(value = HttpStatus.CONFLICT)
@@ -125,7 +112,7 @@ public class ControllerExceptionHandler {
      * Gère les exceptions Exception.
      * @param e
      * @param request
-     * @return
+     * @return ErrorMessage
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)

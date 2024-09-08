@@ -6,21 +6,10 @@ import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * La classe Post représente un post sur un sujet de discussion.
- * Elle est caractérisée par :
- * @id
- * L'identifiant du post
- * @title
- * Le titre du post
- * @content
- * Le contenu du post
- * @date
- * La date de création du post
- * @user
- * L'utilisateur qui a créé le post
- * @topic
- * Le sujet de discussion auquel le post est rattaché
  */
 @Entity
 @Table(name = "post")
@@ -31,6 +20,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @ToString
+@Schema(name = "Post", description = "La classe Post est utilisée pour stocker les informations du post")
 public class Post {
 
     @Id

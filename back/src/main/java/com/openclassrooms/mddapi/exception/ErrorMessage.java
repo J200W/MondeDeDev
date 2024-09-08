@@ -2,6 +2,9 @@ package com.openclassrooms.mddapi.exception;
 
 import java.util.Date;
 
+/**
+ * La classe ErrorMessage est un objet qui représente un message d'erreur.
+ */
 public class ErrorMessage {
     private int statusCode;
     private Date timestamp;

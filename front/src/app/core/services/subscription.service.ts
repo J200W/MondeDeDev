@@ -2,18 +2,21 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SubscriptionInterface } from "../models/subscription.interface";
-import { ResponseStatus } from 'src/app/features/authentification/interfaces/responseSuccess.interface';
+import { ResponseAPI } from 'src/app/features/authentification/interfaces/responseApiSuccess.interface';
 import {environment} from "../../../environments/environment";
 
 @Injectable({
     providedIn: 'root',
 })
+/**
+ * Service de souscription
+ * @class
+ */
 export class SubscriptionService {
     /**
      * Chemin vers le service
      * @type {string}
      * @memberof AuthService
-     * @default api/auth
      * @private
      */
     private pathService: string = `${environment.apiBaseUrl}/api/subscription`;
@@ -23,26 +26,25 @@ export class SubscriptionService {
 
     /**
      * Souscrire à un thème
-     * @returns {Observable<ResponseStatus>}
+     * @returns {Observable<ResponseAPI>}
      * @memberof ThemeService
      * @public
      * @param topicId
-     * @param userId
      */
-    public subscribe(topicId: number): Observable<ResponseStatus> {
-        return this.httpClient.post<ResponseStatus>(`${this.pathService}/sub/${topicId}`, {});
+    public subscribe(topicId: number): Observable<ResponseAPI> {
+        return this.httpClient.post<ResponseAPI>(`${this.pathService}/sub/${topicId}`, {});
     }
 
     /**
      * Désinscrire à un thème
-     * @returns {Observable<ResponseStatus>}
+     * @returns {Observable<ResponseAPI>}
      * @memberof ThemeService
      * @public
      * @param subscriptionId
      */
-    public unsubscribe(subscriptionId: number): Observable<ResponseStatus> {
+    public unsubscribe(subscriptionId: number): Observable<ResponseAPI> {
         console.log(subscriptionId);
-        return this.httpClient.delete<ResponseStatus>(`${this.pathService}/sub/${subscriptionId}`);
+        return this.httpClient.delete<ResponseAPI>(`${this.pathService}/sub/${subscriptionId}`);
     }
 
     /**

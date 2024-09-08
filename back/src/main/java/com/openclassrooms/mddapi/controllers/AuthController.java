@@ -8,21 +8,25 @@ import com.openclassrooms.mddapi.models.User;
 import com.openclassrooms.mddapi.payload.request.LoginRequest;
 import com.openclassrooms.mddapi.payload.request.RegisterRequest;
 import com.openclassrooms.mddapi.payload.request.UserRequest;
-import com.openclassrooms.mddapi.payload.response.JwtResponse;
+import com.openclassrooms.mddapi.payload.response.AuthResponse;
 import com.openclassrooms.mddapi.payload.response.MessageResponse;
 import com.openclassrooms.mddapi.repository.RoleRepository;
 import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.security.jwt.JwtUtils;
 import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
+import com.openclassrooms.mddapi.service.interfaces.IAuthService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +49,12 @@ public class AuthController {
      */
     @Autowired
     AuthenticationManager authenticationManager;
+
+    /**
+     * IAuthService
+     */
+    @Autowired
+    IAuthService authService;
 
     /**
      * UserRepository est utilisé pour accéder aux utilisateur de la base de données
@@ -76,7 +86,13 @@ public class AuthController {
      */
     @ResponseStatus(value = HttpStatus.OK)
     @PostMapping("/login")
-    public JwtResponse authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    @Operation(summary = "Authentifier un utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "401", description = "Le couple identifiant/mot de passe est incorrect", content = {
+                    @Content(mediaType = "application/json") }),
+    })
+    public AuthResponse authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
         // Authentification de l'utilisateur avec l'email et le mot de passe
         Authentication authentication = authenticationManager.authenticate(
@@ -85,29 +101,20 @@ public class AuthController {
         // Mettre l'authentification dans le contexte de sécurité de Spring
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // Générer un token JWT
-        String jwt = jwtUtils.generateJwtToken(authentication);
-
         // Créer un cookie HttpOnly contenant le JWT
-        Cookie jwtCookie = new Cookie("jwtToken", jwt);
-        jwtCookie.setHttpOnly(true);
-        jwtCookie.setSecure(true);
-        jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(24 * 60 * 60);
-
-        // Ajouter le cookie à la réponse
-        response.addCookie(jwtCookie);
+        response.addCookie(authService.createCookie(
+                "jwtToken",
+                jwtUtils.generateJwtToken(authentication),
+                24 * 60 * 60));
 
         // Récupérer les détails de l'utilisateur authentifié
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         // Récupérer les rôles de l'utilisateur
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+        List<String> roles = authService.getRoles(userDetails);
 
         // Retourner la réponse contenant le token JWT et les détails de l'utilisateur
-        return new JwtResponse(jwt, userDetails.getUsername(), userDetails.getEmail(), roles);
+        return new AuthResponse(userDetails.getUsername(), userDetails.getEmail(), roles, HttpStatus.OK.value());
     }
 
     /**
@@ -116,6 +123,12 @@ public class AuthController {
      */
     @ResponseStatus(value = HttpStatus.OK)
     @GetMapping("/me")
+    @Operation(summary = "Obtenir les informations de l'utilisateur courant")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "500", description = "Erreur lors de la récupération des informations de l'utilisateur !", content = {
+                    @Content(mediaType = "application/json") }),
+    })
     public User getCurrentUser() {
         try {
             // Récupérer les informations de l'utilisateur courant
@@ -123,13 +136,12 @@ public class AuthController {
                     .getPrincipal();
 
             // Récupérer les roles de l'utilisateur
-            List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList());
+            List<String> roles = authService.getRoles(userDetails);
 
             // Retourner les informations de l'utilisateur courant
             return new User(userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles);
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la récupération des informations de l'utilisateur !");
+            throw new ResourceNotFoundException("Erreur lors de la récupération des informations de l'utilisateur !");
         }
     }
 
@@ -142,6 +154,16 @@ public class AuthController {
      */
     @ResponseStatus(value = HttpStatus.OK)
     @PutMapping("/me")
+    @Operation(summary = "Mettre à jour les informations de l'utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", description = "Erreur: Email déjà utilisé ou Nom d'utilisateur déjà utilisé !", content = {
+                    @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "404", description = "Erreur: Utilisateur non trouvé !", content = {
+                    @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "500", description = "Erreur lors de la mise à jour des informations de l'utilisateur !", content = {
+                    @Content(mediaType = "application/json") }),
+    })
     public MessageResponse updateCurrentUser(@Valid @RequestBody UserRequest userRequest) {
         try {
             // Récupérer les informations de l'utilisateur courant
@@ -181,13 +203,13 @@ public class AuthController {
             userRepository.save(user);
 
             // Retourner un message de succès
-            return new MessageResponse("Utilisateur mis à jour avec succès!");
+            return new MessageResponse("Utilisateur mis à jour avec succès!", HttpStatus.OK.value());
         } catch (AlreadyInUseException e) {
             throw new AlreadyInUseException(e.getMessage());
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
-            return new MessageResponse(e.getMessage());
+            return new MessageResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 
@@ -196,7 +218,17 @@ public class AuthController {
      */
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping("/register")
-    public JwtResponse registerUser(@Valid @RequestBody RegisterRequest signUpRequest) {
+    @Operation(summary = "Enregistrer un nouvel utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", description = "Erreur: Email déjà utilisé ou Nom d'utilisateur déjà utilisé !", content = {
+                    @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "500", description = "Erreur lors de l'enregistrement de l'utilisateur !", content = {
+                    @Content(mediaType = "application/json") }),
+    })
+    public AuthResponse registerUser(
+            @Valid @RequestBody RegisterRequest signUpRequest,
+            HttpServletResponse response) {
         try {
             // Vérifier si l'email est déjà utilisé
             if (userRepository.existsByEmail(signUpRequest.getEmail())) {
@@ -252,14 +284,18 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
 
+            // Créer un cookie HttpOnly contenant le JWT
+            response.addCookie(authService.createCookie("jwtToken", jwt, 24 * 60 * 60));
+
             // Récupérer les détails de l'utilisateur authentifié
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
             // Retourner un message de succès
-            return new JwtResponse(jwt,
+            return new AuthResponse(
                     userDetails.getUsername(),
                     userDetails.getEmail(),
-                    roles.stream().map(item -> item.getName().toString()).collect(Collectors.toList()));
+                    roles.stream().map(item -> item.getName().toString()).collect(Collectors.toList()),
+                    HttpStatus.CREATED.value());
 
         } catch (AlreadyInUseException e) {
             throw new AlreadyInUseException(e.getMessage());
@@ -272,20 +308,26 @@ public class AuthController {
      * Cette méthode est utilisée pour check si l'utilisateur est connecté
      */
     @ResponseStatus(value = HttpStatus.OK)
-    @GetMapping("/isLogged")
-    public boolean isLogged() {
+    @GetMapping("/is-logged")
+    @Operation(summary = "Vérifier si l'utilisateur est connecté")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "404", description = "Erreur: Utilisateur non connecté !", content = {
+                    @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "500", description = "Erreur: Erreur rencontrée lors de la vérification de l'utilisateur !", content = {
+                    @Content(mediaType = "application/json") }),
+    })
+    public boolean isLogged(HttpServletResponse response) {
         try {
             // Récupérer les informations de l'utilisateur courant
             UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                     .getPrincipal();
-
-            System.out.println(userDetails.getUsername());
-            System.out.println(userDetails.getEmail());
-            System.out.println(userDetails != null);
             return userDetails != null;
         } catch (ResourceNotFoundException e) {
+            response.addCookie(authService.createCookie("jwtToken", null, 0));
             throw new ResourceNotFoundException("Erreur: Utilisateur non connecté !");
         } catch (Exception e) {
+            response.addCookie(authService.createCookie("jwtToken", null, 0));
             throw new RuntimeException("Erreur: Erreur rencontrée lors de la vérification de l'utilisateur !");
         }
     }
@@ -295,22 +337,19 @@ public class AuthController {
      */
     @ResponseStatus(value = HttpStatus.OK)
     @GetMapping("/logout")
+    @Operation(summary = "Déconnecter l'utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "500", description = "Erreur: Erreur rencontrée lors de la déconnexion de l'utilisateur !", content = {
+                    @Content(mediaType = "application/json") }),
+    })
     public MessageResponse logout(HttpServletResponse response) {
         try {
             // Créer un cookie HttpOnly contenant le JWT
-            Cookie jwtCookie = new Cookie("jwtToken", null);
-            jwtCookie.setHttpOnly(true);
-            jwtCookie.setSecure(true);
-            jwtCookie.setPath("/");
-            jwtCookie.setMaxAge(0);
-
-            // Ajouter le cookie à la réponse
-            response.addCookie(jwtCookie);
-
-            System.out.println(jwtCookie);
+            response.addCookie(authService.createCookie("jwtToken", null, 0));
 
             // Retourner un message de succès
-            return new MessageResponse("Déconnexion réussie !");
+            return new MessageResponse("Déconnexion réussie !", HttpStatus.OK.value());
         } catch (Exception e) {
             throw new RuntimeException("Erreur: Erreur rencontrée lors de la déconnexion de l'utilisateur !");
         }

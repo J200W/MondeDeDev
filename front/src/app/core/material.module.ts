@@ -28,4 +28,4 @@ const materialModule = [
  * Module de gestion des composants Material
  * @class
  */
-export class MaterialModule { }
+export class MaterialModule {}

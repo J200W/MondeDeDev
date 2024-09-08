@@ -24,6 +24,7 @@ export class AuthGuard implements CanActivate {
     public canActivate(): Observable<boolean> {
         return this.sessionService.$isLogged().pipe(
             map((isLogged: boolean) => {
+                console.log('isLogged', isLogged);
                 if (!isLogged) {
                     this.router.navigate(['/']);
                     return false; // Accès interdit si non connecté

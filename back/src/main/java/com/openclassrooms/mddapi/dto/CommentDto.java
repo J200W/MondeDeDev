@@ -8,19 +8,30 @@ import org.modelmapper.ModelMapper;
 
 import com.openclassrooms.mddapi.models.Comment;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * La classe CommentDto est un objet de transfert de données pour les commentaires.
+ */
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(name = "CommentDto", description = "La classe CommentDto est un objet de transfert de données pour les commentaires")
 public class CommentDto {
     
+    /**
+     * L'identifiant du commentaire
+     */
     @Getter
     @Setter
     private UserNoRoleDto user;
 
+    /**
+     * Le contenu du commentaire
+     */
     @Getter
     @Setter
     private String content;

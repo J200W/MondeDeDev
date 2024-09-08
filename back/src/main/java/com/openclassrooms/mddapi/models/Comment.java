@@ -6,6 +6,11 @@ import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+/**
+ * La classe Comment représente un commentaire sur un post.
+ */
 @Entity
 @Table(name = "comment")
 @Data
@@ -15,6 +20,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @ToString
+@Schema(name = "Comment", description = "La classe Comment est utilisée pour stocker les informations du commentaire")
 public class Comment {
 
     @Id

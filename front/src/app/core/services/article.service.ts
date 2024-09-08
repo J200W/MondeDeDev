@@ -7,6 +7,10 @@ import {environment} from "../../../environments/environment";
 @Injectable({
    providedIn: 'root',
 })
+/**
+ * Service d'article
+ * @class
+ */
 export class ArticleService {
 
    /**

@@ -6,6 +6,10 @@ import { AuthService } from 'src/app/features/authentification/service/auth.serv
 @Injectable({
     providedIn: 'root',
 })
+/**
+ * Service de session
+ * @class
+ */
 export class SessionService {
     /**
      * Indique si l'utilisateur est connecté
@@ -82,6 +86,7 @@ export class SessionService {
 
     /**
      * Enregistre l'état de connexion dans le localStorage
+     * avant le chargement d'une page
      * @param {boolean} isLogged
      */
     private setLocalStorageIsLogged(isLogged: boolean): void {
@@ -90,6 +95,7 @@ export class SessionService {
 
     /**
      * Récupère l'état de connexion dans le localStorage
+     * après le chargement d'une page
      * @returns {boolean}
      */
     private getLocalStorageIsLogged(): boolean {

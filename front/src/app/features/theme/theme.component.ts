@@ -6,6 +6,7 @@ import { Observable, Subscription } from "rxjs";
 import { User } from "../../core/models/user.interface";
 import { SubscriptionService } from "../../core/services/subscription.service";
 import { Topic } from 'src/app/core/models/topic.interface';
+import { ResponseAPI } from '../authentification/interfaces/responseApiSuccess.interface';
 
 @Component({
     selector: 'app-theme',
@@ -60,14 +61,14 @@ export class ThemeComponent implements OnInit, OnDestroy {
      */
     public subscribe(theme: Topic) {
         this.themeSubscription.add(this.subscriptionService.subscribe(theme.id).subscribe({
-            next: () => {
-                this.matSnackBar.open(`Abonné au thème: ${theme.title}`, 'Close', {
+            next: (response: ResponseAPI) => {
+                this.matSnackBar.open(response.message, 'OK', {
                     duration: 3000,
                 });
                 this.topics = this.topics.filter((t: Topic) => t.id !== theme.id);
             },
-            error: () => {
-                this.matSnackBar.open('Une erreur est survenue', 'OK', {
+            error: (error: ResponseAPI) => {
+                this.matSnackBar.open(error.message, 'OK', {
                     duration: 2000,
                 });
             }

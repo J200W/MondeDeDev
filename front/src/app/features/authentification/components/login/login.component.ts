@@ -51,11 +51,9 @@ export class LoginComponent implements OnDestroy {
             next: (_) => {
                 this.sessionService.logIn();
                 this.router.navigate(['/article']);
-                this.authSubscription.unsubscribe();
             },
             error: () => {
                 this.onError = true;
-                this.authSubscription.unsubscribe();
             }
         }));
     }

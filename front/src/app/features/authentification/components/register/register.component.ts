@@ -6,7 +6,8 @@ import { Router } from "@angular/router";
 import { SessionService } from "../../../../core/services/session.service";
 import { RegisterRequest } from "../../interfaces/registerRequest.interface";
 import { StrongPasswordRegx } from "../../../../core/constants/strong-password-regex";
-import { ResponseStatus } from '../../interfaces/responseSuccess.interface';
+import { ResponseAPI } from '../../interfaces/responseApiSuccess.interface';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-register',
@@ -35,6 +36,14 @@ export class RegisterComponent implements OnDestroy {
      *
      */
     public onError: boolean = false;
+    /**
+     * Message d'erreur
+     * @type {string}
+     * @memberof RegisterComponent
+     * @public
+     *
+     */
+    public errorMessage: string = '';
     /**
      * Formulaire d'inscription
      * @type {FormGroup}
@@ -91,21 +100,16 @@ export class RegisterComponent implements OnDestroy {
     public submit(): void {
         const registerRequest = this.form.value as RegisterRequest;
         this.authSubscription.add(
-            this.authService
-                .register(registerRequest)
-                .subscribe({
-                    next: () => {
-                        this.sessionService.logIn();
-                        this.router.navigate(['/article']);
-                    },
-                    error: () => {
-                        this.onError = true;
-                        this.authSubscription.unsubscribe();
-                    },
-                    complete: () => {
-                        this.authSubscription.unsubscribe();
-                    }
-                })
+            this.authService.register(registerRequest).subscribe({
+                next: () => {
+                    this.sessionService.logIn();
+                    this.router.navigate(['/article']);
+                },
+                error: (error: HttpErrorResponse) => {
+                    this.onError = true;
+                    this.errorMessage = error.error.message;
+                }
+            })
         )
     }
 

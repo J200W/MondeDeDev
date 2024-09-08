@@ -1,7 +1,12 @@
 package com.openclassrooms.mddapi.payload.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
+/**
+ * La classe UserRequest est utilisée pour stocker les informations de l'utilisateur
+ */
+@Schema(name = "UserRequest", description = "La classe UserRequest est utilisée pour stocker les informations de l'utilisateur")
 public class UserRequest {
 
     @NotBlank

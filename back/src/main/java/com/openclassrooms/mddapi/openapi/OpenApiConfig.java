@@ -6,6 +6,9 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * La classe OpenApiConfig est utilisée pour configurer l'API OpenAPI.
+ */
 @Configuration
 @OpenAPIDefinition(info = @Info(title = "MondeDeDév API"))
 @SecurityScheme(
@@ -14,5 +17,4 @@ import org.springframework.context.annotation.Configuration;
     bearerFormat = "JWT",
     scheme = "bearer"
 )
-public class OpenApiConfig {
-}
+public class OpenApiConfig {}

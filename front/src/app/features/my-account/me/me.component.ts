@@ -8,6 +8,8 @@ import { Router } from "@angular/router";
 import { StrongPasswordRegx } from "../../../core/constants/strong-password-regex";
 import { AuthService } from '../../authentification/service/auth.service';
 import { Subscription } from 'rxjs';
+import { ResponseAPI } from '../../authentification/interfaces/responseApiSuccess.interface';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-me',
@@ -105,7 +107,7 @@ export class MeComponent implements OnInit, OnDestroy {
                 });
                 this.logOut();
             },
-            error: (error) => {
+            error: (error: HttpErrorResponse) => {
                 this.matSnackBar.open(error.error.message, 'Fermer', {
                     duration: 5000,
                 });
@@ -125,8 +127,8 @@ export class MeComponent implements OnInit, OnDestroy {
                     duration: 5000,
                 });
             },
-            error: () => {
-                this.matSnackBar.open('Une erreur est survenue', 'Fermer', {
+            error: (error: HttpErrorResponse) => {
+                this.matSnackBar.open("Erreur: Impossible de supprimer l'abonnement", 'Fermer', {
                     duration: 5000,
                 });
             }
@@ -142,7 +144,7 @@ export class MeComponent implements OnInit, OnDestroy {
                 this.sessionService.logOut();
                 this.router.navigate(['/']);
             },
-            error: (error) => {
+            error: (error: HttpErrorResponse) => {
                 console.error(error);
             },
             complete: () => {
