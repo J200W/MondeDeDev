@@ -13,6 +13,9 @@ import { Subscription } from 'rxjs';
     selector: 'app-create-article',
     templateUrl: './form-article.component.html',
     styleUrls: ['./form-article.component.scss']
+    selector: 'app-create-article',
+    templateUrl: './form-article.component.html',
+    styleUrls: ['./form-article.component.scss']
 })
 /**
  * Composant de création d'un article

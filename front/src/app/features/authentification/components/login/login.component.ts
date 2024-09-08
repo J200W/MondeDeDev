@@ -11,9 +11,16 @@ import { User } from "../../../../core/models/user.interface";
     selector: 'app-login',
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss']
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnDestroy {
 
+    /**
+     * Indique si le mot de passe est caché
+     */
+    public hide = true;
     /**
      * Indique si le mot de passe est caché
      */

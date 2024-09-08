@@ -5,6 +5,7 @@ import { AuthService } from 'src/app/features/authentification/service/auth.serv
 
 @Injectable({
     providedIn: 'root',
+    providedIn: 'root',
 })
 /**
  * Service de session

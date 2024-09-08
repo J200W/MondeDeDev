@@ -20,7 +20,7 @@ Bienvenue dans le projet **MDD (Monde de Dév)**, un réseau social dédié aux 
 
 Assurez-vous que les éléments suivants sont installés sur votre machine :
 
-- **Java Development Kit (JDK)** 11 ou supérieur : [Télécharger ici](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
+- **Java Development Kit (JDK)** 17 ou supérieur : [Télécharger ici](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
 - **Node.js** et **npm** (pour Angular) : [Télécharger ici](https://nodejs.org/)
 - **MySQL** : [Télécharger ici](https://dev.mysql.com/downloads/)
 
@@ -28,7 +28,7 @@ Assurez-vous que les éléments suivants sont installés sur votre machine :
 
 1. Clonez le repository du projet :
     ```bash
-    git clone https://github.com/orion/mdd.git
+    git clone https://github.com/J200W/MondeDeDev.git
     cd mdd
     ```
 
@@ -38,7 +38,9 @@ Assurez-vous que les éléments suivants sont installés sur votre machine :
     npm install
     ```
 
-3. Installez les dépendances du backend :
+3. Exécutez le script SQL du fichier `back/src/main/ressources/mdd.sql`
+
+4. Installez les dépendances du backend :
     ```bash
     cd ../backend
     ./mvnw install
@@ -60,17 +62,25 @@ Avant de lancer l'application, assurez-vous de configurer les identifiants de co
 ## Lancer l'application
 
 1. Lancer le backend :
-```cd backend
-./mvnw spring-boot:run```
+    ```
+    cd backend
+    ./mvnw spring-boot:run
+    ```
 
 2. Lancer le frontend :
-```cd ../frontend
-ng serve```
+    ```
+    cd ../frontend
+    ng serve
+    ```
 
 3. Connectez-vous en tant qu'adminstateur avec les identifiants suivant : 
-```Nom d'utilisateur : admin
-Mot de passe : Adm!n2024```
+    ```
+    Nom d'utilisateur : admin
+    Mot de passe : Adm!n2024
+    ```
 
-ou en tant qu'utilisateur avec les identifiants suivant : 
-```Nom d'utilisateur : user
-Mot de passe : Us@R2024```
+4. Ou en tant qu'utilisateur avec les identifiants suivant : 
+    ```
+    Nom d'utilisateur : user
+    Mot de passe : Us@R2024
+    ```

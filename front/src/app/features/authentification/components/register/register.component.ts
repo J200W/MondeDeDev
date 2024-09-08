@@ -13,6 +13,9 @@ import { HttpErrorResponse } from '@angular/common/http';
     selector: 'app-register',
     templateUrl: './register.component.html',
     styleUrls: ['./register.component.scss']
+    selector: 'app-register',
+    templateUrl: './register.component.html',
+    styleUrls: ['./register.component.scss']
 })
 /**
  * Composant d'inscription
@@ -22,6 +25,10 @@ import { HttpErrorResponse } from '@angular/common/http';
  */
 export class RegisterComponent implements OnDestroy {
 
+    /**
+     * Indique si le mot de passe est caché
+     */
+    public hide = true;
     /**
      * Indique si le mot de passe est caché
      */
@@ -57,7 +64,18 @@ export class RegisterComponent implements OnDestroy {
         username: ['', [Validators.required, Validators.min(3)]],
         password: ['', [Validators.required, Validators.pattern(StrongPasswordRegx)]],
     });
+    public form: FormGroup = this.fb.group({
+        email: ['', [Validators.required, Validators.email]],
+        username: ['', [Validators.required, Validators.min(3)]],
+        password: ['', [Validators.required, Validators.pattern(StrongPasswordRegx)]],
+    });
 
+    get passwordFormField() {
+        if (this.form.get('password') === null) {
+            return null;
+        }
+        return this.form.get('password');
+    }
     get passwordFormField() {
         if (this.form.get('password') === null) {
             return null;
