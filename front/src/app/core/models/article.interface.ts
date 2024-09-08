@@ -1,3 +1,7 @@
+/**
+ * Interface pour les articles
+ * @interface
+ */
 export interface Article {
    id: number;
    title: string;

@@ -1,3 +1,7 @@
+/**
+ * Interface pour les abonnements
+ * @interface
+ */
 export interface SubscriptionInterface {
    id: number;
    user: {

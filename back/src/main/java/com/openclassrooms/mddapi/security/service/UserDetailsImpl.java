@@ -80,7 +80,7 @@ public class UserDetailsImpl implements UserDetails {
      * build qui permet de construire un UserDetailsImpl à partir d'un utilisateur
      * 
      * @param user
-     * @return
+     * @return UserDetailsImpl
      */
     public static UserDetailsImpl build(User user) {
         List<GrantedAuthority> authorities = user.getRole().stream()

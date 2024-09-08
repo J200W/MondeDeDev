@@ -1,63 +1,105 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { User } from '../models/user.interface';
-import { CookieService } from "ngx-cookie-service";
 import { AuthService } from 'src/app/features/authentification/service/auth.service';
 
 @Injectable({
     providedIn: 'root',
 })
 /**
- * Service pour la session utilisateur
+ * Service de session
+ * @class
  */
 export class SessionService {
-    public isLogged = false;
+    /**
+     * Indique si l'utilisateur est connecté
+     * @type {BehaviorSubject<boolean>}
+     */
+    public isLoggedSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this.getLocalStorageIsLogged());
+    
+    /**
+     * Utilisateur connecté
+     * @type {User | undefined}
+     */
     public user: User | undefined;
 
-    private isLoggedSubject = new BehaviorSubject<boolean>(this.isLogged);
-
-    constructor(private cookieService: CookieService, private authService: AuthService) { }
+    private sessionSubscription: Subscription = new Subscription();
+    
+    /**
+     * Constructeur du service
+     * @param authService 
+     */
+    constructor(private authService: AuthService) {
+        this.autoLog();
+    }
 
     /**
-     * Observable pour savoir si l'utilisateur est connecté
+     * Observable de l'état de connexion (qui est un BehaviorSubject à l'initialisation)
      * @returns {Observable<boolean>}
      */
     public $isLogged(): Observable<boolean> {
         return this.isLoggedSubject.asObservable();
     }
 
-    public logIn(user: User): void {
-        this.user = user;
-        this.isLogged = true;
-        this.next();
+    /**
+     * Connecte l'utilisateur
+     * @param user 
+     */
+    public logIn(): void {
+        this.setLocalStorageIsLogged(true);
+        this.isLoggedSubject.next(true);
     }
 
-    public autoLogIn(): void {
-        const token = this.cookieService.get('token');
-        if (token) {
-            this.authService.me().subscribe({
-                next: (user: User) => {
-                    this.user = user;
-                    this.isLogged = true;
-                    this.next();
-                },
-                error: (_) => {
-                    this.isLogged = false;
-                    this.logOut();
-                }
-            });
-        }
+    /**
+     * Déconnecte l'utilisateur
+     */
+    public logOut(): void {
+        this.setLocalStorageIsLogged(false);
+        this.isLoggedSubject.next(false);
     }
 
-
-    public async logOut(): Promise<void> {
-        this.user = undefined;
-        this.isLogged = false;
-        this.cookieService.delete('token');
-        this.next();
+    /**
+     * Vérifie si l'utilisateur est connecté
+     */
+    public autoLog(): void {
+        this.sessionSubscription.add(this.authService.isLogged().subscribe({
+            next: (isLogged: boolean) => {
+                this.setLocalStorageIsLogged(isLogged);
+                this.isLoggedSubject.next(isLogged);
+                this.sessionSubscription.add(this.authService.me().subscribe({
+                    next: (user: User) => {
+                        this.user = user;
+                    },
+                    error: (_) => {
+                        this.logOut();
+                    },
+                    complete: () => {
+                        this.sessionSubscription.unsubscribe();
+                    }
+                }));
+            },
+            error: (_) => {
+                this.logOut();
+            },
+        }));
     }
 
-    private next(): void {
-        this.isLoggedSubject.next(this.isLogged)
+    /**
+     * Enregistre l'état de connexion dans le localStorage
+     * avant le chargement d'une page
+     * @param {boolean} isLogged
+     */
+    private setLocalStorageIsLogged(isLogged: boolean): void {
+        localStorage.setItem('isLogged', JSON.stringify(isLogged));
+    }
+
+    /**
+     * Récupère l'état de connexion dans le localStorage
+     * après le chargement d'une page
+     * @returns {boolean}
+     */
+    private getLocalStorageIsLogged(): boolean {
+        const isLogged = localStorage.getItem('isLogged');
+        return isLogged ? JSON.parse(isLogged) : false;
     }
 }

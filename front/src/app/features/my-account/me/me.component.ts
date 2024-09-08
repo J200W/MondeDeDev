@@ -2,18 +2,27 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { SubscriptionService } from "../../../core/services/subscription.service";
-import { UserService } from "../../../core/services/user.service";
 import { SessionService } from "../../../core/services/session.service";
 import { SubscriptionInterface } from "../../../core/models/subscription.interface";
 import { Router } from "@angular/router";
 import { StrongPasswordRegx } from "../../../core/constants/strong-password-regex";
+import { AuthService } from '../../authentification/service/auth.service';
 import { Subscription } from 'rxjs';
+import { ResponseAPI } from '../../authentification/interfaces/responseApiSuccess.interface';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-me',
     templateUrl: './me.component.html',
     styleUrls: ['./me.component.scss']
 })
+/**
+ * Composant de profil
+ * @class
+ * @implements {OnInit}
+ * @implements {OnDestroy}
+ * @public
+ */
 export class MeComponent implements OnInit, OnDestroy {
 
     /**
@@ -26,6 +35,10 @@ export class MeComponent implements OnInit, OnDestroy {
      */
     public onError = false;
 
+    /**
+     * Formulaire de profil
+     * @type {FormGroup}
+     */
     public profileForm: FormGroup = this.fb.group({
         id: this.sessionService!.user?.id,
         username: ['', [Validators.required]],
@@ -33,99 +46,110 @@ export class MeComponent implements OnInit, OnDestroy {
         password: ['', Validators.pattern(StrongPasswordRegx)],
     });
 
+    /**
+     * Formulaire de profil
+     */
     get passwordFormField() {
         return this.profileForm.get('password');
     }
 
+    /**
+     * Liste des abonnements
+     * @type {SubscriptionInterface[]}
+     */
     public subscriptions: SubscriptionInterface[] = [];
 
-    private userSubscriptionMe!: Subscription;
-    private subSubscription!: Subscription;
-    private subSubscription2!: Subscription;
-    private userUpdateSubscription!: Subscription;
+    /**
+     * Subscription au service d'abonnement
+     * @type {Subscription}
+     */
+    private meSubscription: Subscription = new Subscription();
 
     constructor(
         private fb: FormBuilder,
         private subscriptionService: SubscriptionService,
-        private userService: UserService,
         private sessionService: SessionService,
         private matSnackBar: MatSnackBar,
-        private router: Router
+        private router: Router,
+        private authService: AuthService,
     ) { }
 
     ngOnInit(): void {
-        this.userSubscriptionMe = this.userService.getMe().subscribe((user) => {
+        this.meSubscription.add(this.authService.me().subscribe((user) => {
             this.profileForm.patchValue(user);
-        });
-
-        this.subSubscription = this.subscriptionService.getSubscriptions().subscribe((subscriptions) => {
+        }));
+        this.meSubscription.add(this.subscriptionService.getSubscriptions().subscribe((subscriptions) => {
             this.subscriptions = subscriptions;
-        });
+        }));
     }
 
     ngOnDestroy(): void {
-        if (this.userSubscriptionMe) {
-            this.userSubscriptionMe.unsubscribe();
-        }
-        if (this.subSubscription) {
-            this.subSubscription.unsubscribe();
-        }
-        if (this.subSubscription2) {
-            this.subSubscription2.unsubscribe();
-        }
-        if (this.userUpdateSubscription) {
-            this.userUpdateSubscription.unsubscribe();
-        }
+        this.meSubscription.unsubscribe();
     }
 
+    /**
+     * Envoie le formulaire de profil
+     */
     public save(): void {
-        if (this.profileForm.get('password')!.value !== '' && !StrongPasswordRegx.test(this.profileForm.get('password')!.value)) {
+        if (this.profileForm.get('password')!.value !== '' &&
+            this.profileForm.get('password')!.value !== null &&
+            !StrongPasswordRegx.test(this.profileForm.get('password')!.value)) {
             this.matSnackBar.open('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.', 'Fermer', {
                 duration: 5000,
             });
             return;
         }
-        this.userUpdateSubscription = this.userService.update(this.profileForm.value).subscribe({
+
+        this.meSubscription.add(this.authService.update(this.profileForm.value).subscribe({
             next: () => {
                 this.matSnackBar.open('Profil mis à jour ! Veuillez vous reconnecter.', 'Fermer', {
                     duration: 5000,
                 });
                 this.logOut();
             },
-            error: (error: any) => {
-                this.userUpdateSubscription.unsubscribe();
+            error: (error: HttpErrorResponse) => {
                 this.matSnackBar.open(error.error.message, 'Fermer', {
                     duration: 5000,
                 });
-            },
-            complete: () => {
-                this.userUpdateSubscription.unsubscribe();
             }
-        });
+        }));
     }
 
+    /**
+     * Désabonne l'utilisateur
+     * @param {SubscriptionInterface} subscription
+     */
     public unsubscribe(subscription: SubscriptionInterface): void {
-        this.subSubscription2 = this.subscriptionService.unsubscribe(subscription.id).subscribe({
+        this.meSubscription.add(this.subscriptionService.unsubscribe(subscription.id).subscribe({
             next: () => {
                 this.subscriptions = this.subscriptions.filter((sub) => sub.id !== subscription.id);
-                this.matSnackBar.open('Vous êtes désabonné à: ' + subscription.topic.title, 'Fermer', {
+                this.matSnackBar.open('Désabonner à: ' + subscription.topic.title, 'Fermer', {
                     duration: 5000,
                 });
             },
-            error: (error: any) => {
-                this.subSubscription2.unsubscribe();
-                this.matSnackBar.open("Erreur lors du désabonnement", 'Fermer', {
+            error: (error: HttpErrorResponse) => {
+                this.matSnackBar.open("Erreur: Impossible de supprimer l'abonnement", 'Fermer', {
                     duration: 5000,
                 });
-            },
-            complete: () => {
-                this.subSubscription2.unsubscribe();
             }
-        });
+        }));
     }
 
+    /**
+     * Déconnecte l'utilisateur
+     */
     public logOut(): void {
-        this.sessionService.logOut();
-        this.router.navigate(['/']);
+        this.meSubscription.add(this.authService.logout().subscribe({
+            next: () => {
+                this.sessionService.logOut();
+                this.router.navigate(['/']);
+            },
+            error: (error: HttpErrorResponse) => {
+                console.error(error);
+            },
+            complete: () => {
+                this.meSubscription.unsubscribe();
+            }
+        }));
     }
 }

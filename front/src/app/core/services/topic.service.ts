@@ -2,10 +2,15 @@ import {HttpClient} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {Topic} from "../models/topic.interface";
+import {environment} from "../../../environments/environment";
 
 @Injectable({
    providedIn: 'root',
 })
+/**
+ * Service pour les thèmes
+ * @class
+ */
 export class TopicService {
    /**
     * Chemin vers le service
@@ -14,10 +19,9 @@ export class TopicService {
     * @default api/auth
     * @private
     */
-   private pathService: string = 'http://localhost:8080/api/topic';
+   private pathService: string = `${environment.apiBaseUrl}/api/topic`;
 
-   constructor(private httpClient: HttpClient) {
-   }
+   constructor(private httpClient: HttpClient) {}
 
    /**
     * Obtenir tous les thèmes

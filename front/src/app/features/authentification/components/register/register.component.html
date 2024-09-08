@@ -52,8 +52,8 @@
             </mat-card-content>
             <div class="register-actions" fxLayout="row" fxLayoutAlign="end center">
                 <button (click)="submit()" [disabled]="form.invalid" color="primary" mat-raised-button type="submit">S'inscrire</button>
-                <span *ngIf="onError" class="error">Une erreur est survenue lors de l'inscription.</span>
             </div>
+            <span *ngIf="onError" class="error">{{ errorMessage }}</span>
         </form>
     </mat-card>
 </div>

@@ -4,22 +4,15 @@ import jakarta.persistence.*;
 import lombok.experimental.Accessors;
 import org.springframework.lang.NonNull;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
  * La classe User représente un utilisateur.
- * Elle est caractérisée par :
- * @id
- * L'identifiant de l'utilisateur
- * @email
- * L'adresse email de l'utilisateur
- * @username
- * Le nom d'utilisateur de l'utilisateur
- * @password
- * Le mot de passe de l'utilisateur
  */
 @Entity
 @Data
@@ -32,6 +25,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @ToString
+@Schema(name = "User", description = "La classe User est utilisée pour stocker les informations de l'utilisateur")
 public class User {
 
     @Id
@@ -64,6 +58,22 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+        /**
+     * Constructeur avec paramètres, avec l'identifiant
+     * @param id
+     * @param username
+     * @param email
+     */
+    public User(Integer id, String username, String email, List<String> role) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.role = new HashSet<>();
+        for (String r : role) {
+            this.role.add(new Role(ERole.valueOf(r)));
+        }
     }
 }
 

@@ -1,57 +1,58 @@
-import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {SubscriptionInterface} from "../models/subscription.interface";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { SubscriptionInterface } from "../models/subscription.interface";
+import { ResponseAPI } from 'src/app/features/authentification/interfaces/responseApiSuccess.interface';
+import {environment} from "../../../environments/environment";
 
 @Injectable({
-   providedIn: 'root',
+    providedIn: 'root',
 })
+/**
+ * Service de souscription
+ * @class
+ */
 export class SubscriptionService {
-   /**
-    * Chemin vers le service
-    * @type {string}
-    * @memberof AuthService
-    * @default api/auth
-    * @private
-    */
-   private pathService: string = 'http://localhost:8080/api/subscription';
+    /**
+     * Chemin vers le service
+     * @type {string}
+     * @memberof AuthService
+     * @private
+     */
+    private pathService: string = `${environment.apiBaseUrl}/api/subscription`;
 
-   constructor(private httpClient: HttpClient) {
-   }
+    constructor(private httpClient: HttpClient) {
+    }
 
-   /**
-    * Souscrire à un thème
-    * @returns {Observable<void>}
-    * @memberof ThemeService
-    * @public
-    * @param topicId
-    * @param userId
-    */
-   public subscribe(topicId: number, userId: number | undefined): Observable<void> {
-      return this.httpClient.post<any>(`${this.pathService}/sub`,
-          {
-             topic: {
-                id: topicId
-             },
-             user: {
-                id: userId
-             }
-          }
-      );
-   }
+    /**
+     * Souscrire à un thème
+     * @returns {Observable<ResponseAPI>}
+     * @memberof ThemeService
+     * @public
+     * @param topicId
+     */
+    public subscribe(topicId: number): Observable<ResponseAPI> {
+        return this.httpClient.post<ResponseAPI>(`${this.pathService}/sub/${topicId}`, {});
+    }
 
-   /**
-    * Désinscrire à un thème
-    * @returns {Observable<void>}
-    * @memberof ThemeService
-    * @public
-    * @param subscriptionId
-    */
-   public unsubscribe(subscriptionId: number): Observable<void> {
-      return this.httpClient.delete<void>(`${this.pathService}/sub/${subscriptionId}`);
-   }
+    /**
+     * Désinscrire à un thème
+     * @returns {Observable<ResponseAPI>}
+     * @memberof ThemeService
+     * @public
+     * @param subscriptionId
+     */
+    public unsubscribe(subscriptionId: number): Observable<ResponseAPI> {
+        return this.httpClient.delete<ResponseAPI>(`${this.pathService}/sub/${subscriptionId}`);
+    }
 
-   public getSubscriptions(): Observable<SubscriptionInterface[]> {
-      return this.httpClient.get<any>(`${this.pathService}/me`);
-   }
+    /**
+     * Obtenir les souscriptions
+     * @returns {Observable<SubscriptionInterface[]>}
+     * @memberof ThemeService
+     * @public
+     */
+    public getSubscriptions(): Observable<SubscriptionInterface[]> {
+        return this.httpClient.get<SubscriptionInterface[]>(`${this.pathService}/me`);
+    }
 }

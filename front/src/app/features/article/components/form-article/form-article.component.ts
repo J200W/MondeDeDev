@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { SessionService } from "../../../../core/services/session.service";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
@@ -14,21 +14,45 @@ import { Subscription } from 'rxjs';
     templateUrl: './form-article.component.html',
     styleUrls: ['./form-article.component.scss']
 })
+/**
+ * Composant de création d'un article
+ * @class
+ * @implements {OnInit}
+ * @implements {OnDestroy}
+ * @public
+ */
 export class FormArticleComponent implements OnInit, OnDestroy {
 
+    /**
+     * Formulaire d'article
+     * @type {FormGroup}
+     */
     public articleForm: FormGroup = this.fb.group({
         topic: ['', [Validators.required]],
         title: ['', [Validators.required]],
         content: ['', [Validators.required]]
     });
+    /**
+     * Liste des topics
+     * @type {Topic[]}
+     */
     public selectedTopic: Topic[] = [];
+    /**
+     * Subscription au service d'article
+     * @type {Subscription}
+     */
+    private articleSubscription: Subscription = new Subscription();
 
-    private id: string | undefined;
-    private topicSubscription!: Subscription;
-    private articleSubscription!: Subscription;
-
+    /**
+     * Constructeur du composant
+     * @param fb 
+     * @param matSnackBar 
+     * @param articleService 
+     * @param sessionService 
+     * @param topicService 
+     * @param router 
+     */
     constructor(
-        private route: ActivatedRoute,
         private fb: FormBuilder,
         private matSnackBar: MatSnackBar,
         private articleService: ArticleService,
@@ -41,20 +65,50 @@ export class FormArticleComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         const url = this.router.url;
         this.initForm();
-        this.topicSubscription = this.topicService.getAll().subscribe((topics) => {
+        this.articleSubscription.add(this.topicService.getAll().subscribe((topics) => {
             this.selectedTopic = topics;
-        });
+        }));
     }
 
     ngOnDestroy(): void {
-        if (this.topicSubscription) {
-            this.topicSubscription.unsubscribe();
-        }
-        if (this.articleSubscription) {
-            this.articleSubscription.unsubscribe();
-        }
+        this.articleSubscription.unsubscribe();
     }
-    
+
+    /**
+     * Soumettre le formulaire
+     */
+    public submit(): void {
+        const articleDate: Article = {
+            id: 0,
+            date: new Date(),
+            title: this.articleForm!.get('title')?.value,
+            content: this.articleForm!.get('content')?.value.replace(/\n/g, '<br>'),
+            user: {
+                id: this.sessionService.user!.id,
+                email: this.sessionService.user!.email,
+                username: this.sessionService.user!.username,
+            },
+            topic: {
+                id: this.articleForm!.get('topic')?.value,
+                description: '',
+                title: ''
+            }
+        };
+
+        this.articleSubscription.add(this.articleService
+            .create(articleDate)
+            .subscribe(() => {
+                this.router.navigate(['/article']);
+                this.matSnackBar.open('Article créé', 'Fermer', {
+                    duration: 2000,
+                });
+            }));
+    }
+
+    /**
+     * Initialisation du formulaire
+     * @param article 
+     */
     private initForm(article?: Article): void {
         if (
             article !== undefined &&
@@ -69,44 +123,5 @@ export class FormArticleComponent implements OnInit, OnDestroy {
                 ],
             });
         }
-    }
-
-    public submit(): void {
-        if (this.articleForm!.get('title')?.value.trim() === '') {
-            this.articleForm!.get('title')?.setValue('');
-        }
-        if (this.articleForm!.get('content')?.value.trim() === '') {
-            this.articleForm!.get('content')?.setValue('');
-        }
-        
-        const newArticle = {
-            title: this.articleForm!.get('title')?.value.trim(),
-            content: this.articleForm!.get('content')?.value.replace(/\n/g, '<br>').trim(),
-            user: {
-                id: this.sessionService.user!.id,
-            },
-            topic: {
-                id: this.articleForm!.get('topic')?.value,
-            }
-        };
-
-        this.articleSubscription = this.articleService
-            .create(newArticle)
-            .subscribe({
-                next: () => {
-                    this.router.navigate(['/article']);
-                    this.matSnackBar.open('Article créé', 'Fermer', {
-                        duration: 2000,
-                    });
-                },
-                error: () => {
-                    this.matSnackBar.open('Erreur lors de la création de l\'article', 'Fermer', {
-                        duration: 2000,
-                    });
-                },
-                complete: () => {
-                    this.articleSubscription.unsubscribe();
-                }
-            });
     }
 }

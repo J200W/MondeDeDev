@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/*
+ * Le repository CommentRepository permet de gérer les commentaires en base de données.
+ */
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
     Optional<List<Comment>> findAllByPost_id(Integer postId);

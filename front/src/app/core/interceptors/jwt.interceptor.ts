@@ -1,23 +1,26 @@
-import {HttpHandler, HttpInterceptor, HttpRequest} from "@angular/common/http";
-import {Injectable} from "@angular/core";
-import {CookieService} from "ngx-cookie-service";
+import { HttpHandler, HttpInterceptor, HttpRequest, HTTP_INTERCEPTORS, HttpEvent } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
+/**
+ * Intercepteur HTTP pour ajouter le token JWT aux requêtes
+ * @class
+ * @implements {HttpInterceptor}
+ */
 export class JwtInterceptor implements HttpInterceptor {
-   constructor(
-       private cookieService: CookieService
-   ) {
-   }
+    public intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        req = req.clone({
+            withCredentials: true,
+        });
 
-   public intercept(request: HttpRequest<any>, next: HttpHandler) {
-      const token = this.cookieService.get('token');
-      if (token) {
-         request = request.clone({
-            setHeaders: {
-               Authorization: `Bearer ${token}`,
-            },
-         });
-      }
-      return next.handle(request);
-   }
+        return next.handle(req);
+    }
 }
+
+/**
+ * Liste des intercepteurs HTTP
+ */
+export const httpInterceptorProviders = [
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+];

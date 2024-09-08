@@ -1,9 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Observable, Subject, Subscription, takeUntil } from "rxjs";
-import { AuthService } from "../../../features/authentification/service/auth.service";
-import { Event, Router } from "@angular/router";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Observable, Subscription } from "rxjs";
+import { Router } from "@angular/router";
 import { SessionService } from "../../services/session.service";
-import { User } from "../../models/user.interface";
 
 @Component({
     selector: 'app-header',
@@ -11,67 +9,65 @@ import { User } from "../../models/user.interface";
     styleUrls: ['./header.component.scss']
 })
 /**
- * Composant pour l'en-tête de l'application
+ * Composant d'en-tête
+ * @class
+ * @implements {OnInit}
+ * @implements {OnDestroy}
+ * @public
  */
-export class HeaderComponent implements OnInit, OnDestroy {
+export class HeaderComponent implements OnInit, OnDestroy{
+    /**
+     * Indique si le menu est visible
+     * @type {boolean}
+     */
     public menuIsVisible: boolean = false;
-    public isLogged$: Observable<boolean>;
-
-    // Subscription et Subject pour gérer la désinscription de l'observable
-    private routerSubscription!: Subscription;
-    private destroy$ = new Subject<void>();
+    /**
+     * Utilisateur
+     * @type {User | undefined}
+     */
+    public isLogged$: Observable<boolean> = new Observable<boolean>();
+    /**
+     * Subscription au router
+     * @type {Subscription}
+     */
+    private routerSubscription: Subscription = new Subscription();
 
     constructor(
-        private authService: AuthService,
         public router: Router,
         private sessionService: SessionService
-    ) {
-        this.isLogged$ = this.sessionService.$isLogged();
-
-        // Sauvegarde de la souscription pour pouvoir la désinscrire
-        this.routerSubscription = router.events.subscribe((val: Event) => {
-            this.menuIsVisible = false;
-        });
-    }
+    ) {}
 
     ngOnInit(): void {
-        this.autoLog();
+        this.isLogged$ = this.sessionService.$isLogged();
+        this.routerSubscription.add(this.router.events.subscribe((val) => {
+            this.menuIsVisible = false;
+        }));
     }
 
     ngOnDestroy(): void {
-        // Unsubscribe from the router events
-        if (this.routerSubscription) {
-            this.routerSubscription.unsubscribe();
-        }
-
-        // Emit the destroy signal and complete the subject to clean up
-        this.destroy$.next();
-        this.destroy$.complete();
+        this.routerSubscription.unsubscribe();
     }
 
+    /**
+     * Retourne l'url courante
+     * @returns {string}
+     */
     public currentUrl(): string {
         return this.router.url;
     }
 
+    /**
+     * Bascule le menu
+     */
     public toggleMenu() {
         this.menuIsVisible = !this.menuIsVisible;
     }
     
+    /**
+     * Déconnecte l'utilisateur
+     */
     public logout(): void {
         this.sessionService.logOut();
         this.router.navigate(['/']);
-    }
-
-    public autoLog(): void {
-        this.authService.me().pipe(
-            takeUntil(this.destroy$)  // Se désinscrire automatiquement à la destruction du composant
-        ).subscribe({
-            next: (user: User) => {
-                this.sessionService.logIn(user);
-            },
-            error: (_) => {
-                this.sessionService.logOut();
-            }
-        });
     }
 }

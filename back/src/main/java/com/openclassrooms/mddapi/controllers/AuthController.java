@@ -1,24 +1,32 @@
 package com.openclassrooms.mddapi.controllers;
 
+import com.openclassrooms.mddapi.exception.AlreadyInUseException;
+import com.openclassrooms.mddapi.exception.ResourceNotFoundException;
 import com.openclassrooms.mddapi.models.ERole;
 import com.openclassrooms.mddapi.models.Role;
 import com.openclassrooms.mddapi.models.User;
 import com.openclassrooms.mddapi.payload.request.LoginRequest;
 import com.openclassrooms.mddapi.payload.request.RegisterRequest;
 import com.openclassrooms.mddapi.payload.request.UserRequest;
-import com.openclassrooms.mddapi.payload.response.JwtResponse;
+import com.openclassrooms.mddapi.payload.response.AuthResponse;
 import com.openclassrooms.mddapi.payload.response.MessageResponse;
 import com.openclassrooms.mddapi.repository.RoleRepository;
 import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.security.jwt.JwtUtils;
 import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
+import com.openclassrooms.mddapi.service.interfaces.IAuthService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +40,7 @@ import java.util.stream.Collectors;
  * La classe AuthController est utilisée pour gérer l'authentification de
  * l'utilisateur
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -41,6 +49,12 @@ public class AuthController {
      */
     @Autowired
     AuthenticationManager authenticationManager;
+
+    /**
+     * IAuthService
+     */
+    @Autowired
+    IAuthService authService;
 
     /**
      * UserRepository est utilisé pour accéder aux utilisateur de la base de données
@@ -70,55 +84,64 @@ public class AuthController {
      * Cette méthode est utilisée pour authentifier un utilisateur
      * avec son email ou son nom d'utilisateur et son mot de passe
      */
+    @ResponseStatus(value = HttpStatus.OK)
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        try {
+    @Operation(summary = "Authentifier un utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "401", description = "Le couple identifiant/mot de passe est incorrect", content = {
+                    @Content(mediaType = "application/json") }),
+    })
+    public AuthResponse authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
 
-            // Authentification de l'utilisateur avec l'email et le mot de passe
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    loginRequest.getEmailOrUsername(), loginRequest.getPassword()));
+        // Authentification de l'utilisateur avec l'email et le mot de passe
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmailOrUsername(), loginRequest.getPassword()));
 
-            // Mettre l'authentification dans le contexte de sécurité de Spring
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            String jwt = jwtUtils.generateJwtToken(authentication);
+        // Mettre l'authentification dans le contexte de sécurité de Spring
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Récupérer les détails de l'utilisateur authentifié
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal(); // cast ?
+        // Créer un cookie HttpOnly contenant le JWT
+        response.addCookie(authService.createCookie(
+                "jwtToken",
+                jwtUtils.generateJwtToken(authentication),
+                24 * 60 * 60));
 
-            // Récupérer les roles de l'utilisateur
-            List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList());
+        // Récupérer les détails de l'utilisateur authentifié
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-            // Retourner le token JWT et les détails de l'utilisateur
-            return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(),
-                    userDetails.getEmail(), roles));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(
-                    new MessageResponse("Erreur lors de l'authentification de l'utilisateur ! : " + e.getMessage()));
-        }
+        // Récupérer les rôles de l'utilisateur
+        List<String> roles = authService.getRoles(userDetails);
+
+        // Retourner la réponse contenant le token JWT et les détails de l'utilisateur
+        return new AuthResponse(userDetails.getUsername(), userDetails.getEmail(), roles, HttpStatus.OK.value());
     }
 
     /**
      * Cette méthode est utilisée pour obtenir les informations de l'utilsateur
      * courant
      */
+    @ResponseStatus(value = HttpStatus.OK)
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser() {
+    @Operation(summary = "Obtenir les informations de l'utilisateur courant")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "500", description = "Erreur lors de la récupération des informations de l'utilisateur !", content = {
+                    @Content(mediaType = "application/json") }),
+    })
+    public User getCurrentUser() {
         try {
             // Récupérer les informations de l'utilisateur courant
             UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                     .getPrincipal();
 
             // Récupérer les roles de l'utilisateur
-            List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList());
+            List<String> roles = authService.getRoles(userDetails);
 
             // Retourner les informations de l'utilisateur courant
-            return ResponseEntity.ok(new JwtResponse(null, userDetails.getId(), userDetails.getUsername(),
-                    userDetails.getEmail(), roles));
+            return new User(userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles);
         } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Erreur lors de la récupération des informations de l'utilisateur !"));
+            throw new ResourceNotFoundException("Erreur lors de la récupération des informations de l'utilisateur !");
         }
     }
 
@@ -129,31 +152,45 @@ public class AuthController {
      * @param userRequest
      * @return
      */
+    @ResponseStatus(value = HttpStatus.OK)
     @PutMapping("/me")
-    public ResponseEntity<?> updateCurrentUser(@Valid @RequestBody UserRequest userRequest) {
+    @Operation(summary = "Mettre à jour les informations de l'utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", description = "Erreur: Email déjà utilisé ou Nom d'utilisateur déjà utilisé !", content = {
+                    @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "404", description = "Erreur: Utilisateur non trouvé !", content = {
+                    @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "500", description = "Erreur lors de la mise à jour des informations de l'utilisateur !", content = {
+                    @Content(mediaType = "application/json") }),
+    })
+    public MessageResponse updateCurrentUser(@Valid @RequestBody UserRequest userRequest) {
         try {
             // Récupérer les informations de l'utilisateur courant
             UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                     .getPrincipal();
 
-            // Vérifier si l'utilisateur existe dans la base de données
-            if (!userRepository.existsById(userRequest.getId())) {
-                throw new RuntimeException("Erreur: Utilisateur non trouvé!");
-            }
+            Integer userId = userDetails.getId();
 
-            // Vérifier si l'utilisateur courant est autorisé à mettre à jour l'utilisateur
-            if (!userDetails.getId().equals(userRequest.getId())) {
-                throw new RuntimeException("Erreur: Vous n'êtes pas autorisé à mettre à jour cet utilisateur!");
+            // Vérifier si l'utilisateur existe dans la base de données
+            if (!userRepository.existsById(userId)) {
+                throw new ResourceNotFoundException("Erreur: Utilisateur non trouvé!");
             }
 
             // Vérifier si l'email est déjà utilisé par un autre utilisateur
             if (userRepository.findByEmail(userRequest.getEmail()).isPresent() &&
-                    !userRepository.findByEmail(userRequest.getEmail()).get().getId().equals(userRequest.getId())) {
-                throw new RuntimeException("Erreur: Email déjà utilisé!");
+                    !userRepository.findByEmail(userRequest.getEmail()).get().getId().equals(userId)) {
+                throw new AlreadyInUseException("Erreur: Email déjà utilisé!");
+            }
+
+            // Vérifier si le nom d'utilisateur est déjà utilisé par un autre utilisateur
+            if (userRepository.findByUsername(userRequest.getUsername()).isPresent() &&
+                    !userRepository.findByUsername(userRequest.getUsername()).get().getId().equals(userId)) {
+                throw new RuntimeException("Erreur: Nom d'utilisateur déjà utilisé!");
             }
 
             // Récupérer l'utilisateur à partir de la base de données
-            User user = userRepository.findById(userRequest.getId()).get();
+            User user = userRepository.findById(userId).get();
 
             // Mettre à jour les informations de l'utilisateur
             user.setEmail(userRequest.getEmail());
@@ -166,32 +203,41 @@ public class AuthController {
             userRepository.save(user);
 
             // Retourner un message de succès
-            return ResponseEntity.ok(new MessageResponse("Utilisateur mis à jour avec succès!"));
-
+            return new MessageResponse("Utilisateur mis à jour avec succès!", HttpStatus.OK.value());
+        } catch (AlreadyInUseException e) {
+            throw new AlreadyInUseException(e.getMessage());
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+            return new MessageResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 
     /**
      * Cette méthode est utilisée pour enregistrer un nouvel utilisateur
      */
+    @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest signUpRequest) {
-
+    @Operation(summary = "Enregistrer un nouvel utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "400", description = "Erreur: Email déjà utilisé ou Nom d'utilisateur déjà utilisé !", content = {
+                    @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "500", description = "Erreur lors de l'enregistrement de l'utilisateur !", content = {
+                    @Content(mediaType = "application/json") }),
+    })
+    public AuthResponse registerUser(
+            @Valid @RequestBody RegisterRequest signUpRequest,
+            HttpServletResponse response) {
         try {
             // Vérifier si l'email est déjà utilisé
             if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-                return ResponseEntity
-                        .badRequest()
-                        .body(new MessageResponse("Error: Email is already in use!"));
+                throw new AlreadyInUseException("Erreur: Email déjà utilisé!");
             }
 
             // Vérifier si le nom d'utilisateur est déjà utilisé
             if (userRepository.existsByUsername(signUpRequest.getName())) {
-                return ResponseEntity
-                        .badRequest()
-                        .body(new MessageResponse("Error: Username is already in use!"));
+                throw new AlreadyInUseException("Erreur: Nom d'utilisateur déjà utilisé!");
             }
 
             // Créer un nouvel utilisateur
@@ -206,7 +252,7 @@ public class AuthController {
             // Si les roles ne sont pas spécifiés, attribuer le role USER par défaut
             if (strRoles == null) {
                 Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        .orElseThrow(() -> new ResourceNotFoundException("Erreur: Le role n'est pas trouvé."));
                 roles.add(userRole);
             }
 
@@ -215,10 +261,10 @@ public class AuthController {
                 strRoles.forEach(role -> {
                     if (role.equals("admin")) {
                         Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                                .orElseThrow(() -> new ResourceNotFoundException("Erreur: Le role n'est pas trouvé."));
                         roles.add(adminRole);
                     } else {
-                        if (roleRepository.findByName(ERole.ROLE_USER).isPresent()) { // COMMENT
+                        if (roleRepository.findByName(ERole.ROLE_USER).isPresent()) {
                             Role userRole = roleRepository.findByName(ERole.ROLE_USER).get();
                             roles.add(userRole);
                         }
@@ -238,19 +284,74 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateJwtToken(authentication);
 
+            // Créer un cookie HttpOnly contenant le JWT
+            response.addCookie(authService.createCookie("jwtToken", jwt, 24 * 60 * 60));
+
             // Récupérer les détails de l'utilisateur authentifié
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
             // Retourner un message de succès
-            return ResponseEntity.ok(new JwtResponse(jwt,
-                    userDetails.getId(),
+            return new AuthResponse(
                     userDetails.getUsername(),
                     userDetails.getEmail(),
-                    roles.stream().map(item -> item.getName().toString()).collect(Collectors.toList())));
+                    roles.stream().map(item -> item.getName().toString()).collect(Collectors.toList()),
+                    HttpStatus.CREATED.value());
+
+        } catch (AlreadyInUseException e) {
+            throw new AlreadyInUseException(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Erreur lors de l'enregistrement de l'utilisateur : " + e.getMessage()));
+            throw new RuntimeException("Erreur: Erreur rencontrée lors de l'enregistrement de l'utilisateur !");
+        }
+    }
+
+    /**
+     * Cette méthode est utilisée pour check si l'utilisateur est connecté
+     */
+    @ResponseStatus(value = HttpStatus.OK)
+    @GetMapping("/is-logged")
+    @Operation(summary = "Vérifier si l'utilisateur est connecté")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "404", description = "Erreur: Utilisateur non connecté !", content = {
+                    @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "500", description = "Erreur: Erreur rencontrée lors de la vérification de l'utilisateur !", content = {
+                    @Content(mediaType = "application/json") }),
+    })
+    public boolean isLogged(HttpServletResponse response) {
+        try {
+            // Récupérer les informations de l'utilisateur courant
+            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
+            return userDetails != null;
+        } catch (ResourceNotFoundException e) {
+            response.addCookie(authService.createCookie("jwtToken", null, 0));
+            throw new ResourceNotFoundException("Erreur: Utilisateur non connecté !");
+        } catch (Exception e) {
+            response.addCookie(authService.createCookie("jwtToken", null, 0));
+            throw new RuntimeException("Erreur: Erreur rencontrée lors de la vérification de l'utilisateur !");
+        }
+    }
+
+    /**
+     * Cette méthode est utilisée pour déconnecter l'utilisateur
+     */
+    @ResponseStatus(value = HttpStatus.OK)
+    @GetMapping("/logout")
+    @Operation(summary = "Déconnecter l'utilisateur")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", content = { @Content(mediaType = "application/json") }),
+            @ApiResponse(responseCode = "500", description = "Erreur: Erreur rencontrée lors de la déconnexion de l'utilisateur !", content = {
+                    @Content(mediaType = "application/json") }),
+    })
+    public MessageResponse logout(HttpServletResponse response) {
+        try {
+            // Créer un cookie HttpOnly contenant le JWT
+            response.addCookie(authService.createCookie("jwtToken", null, 0));
+
+            // Retourner un message de succès
+            return new MessageResponse("Déconnexion réussie !", HttpStatus.OK.value());
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur: Erreur rencontrée lors de la déconnexion de l'utilisateur !");
         }
     }
 }

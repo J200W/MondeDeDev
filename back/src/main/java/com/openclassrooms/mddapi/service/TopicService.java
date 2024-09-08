@@ -1,38 +1,53 @@
 package com.openclassrooms.mddapi.service;
 
+import com.openclassrooms.mddapi.exception.ResourceNotFoundException;
 import com.openclassrooms.mddapi.models.Topic;
 import com.openclassrooms.mddapi.repository.TopicRepository;
+import com.openclassrooms.mddapi.service.interfaces.ITopicService;
+
+import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class TopicService {
+@AllArgsConstructor
+/**
+ * La classe TopicService est le service pour les thèmes.
+ * @see ITopicService
+ */
+public class TopicService implements ITopicService {
+
+    /**
+     * Le repository TopicRepository
+     */
     private final TopicRepository topicRepository;
 
-    public TopicService(TopicRepository topicRepository) {
-        this.topicRepository = topicRepository;
-    }
-
+    @Override
     public void delete(Integer id) {
         this.topicRepository.deleteById(id);
     }
 
+    @Override
     public List<Topic> findAll() {
         return this.topicRepository.findAllByOrderByIdDesc();
     }
 
+    @Override
     public Topic findById(Integer id) {
-        return this.topicRepository.findById(id).orElse(null);
+        return this.topicRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Thème non trouvé avec l'id " + id));
     }
 
+    @Override
     public Topic update(Integer id, Topic topic) {
         topic.setId(id);
         return this.topicRepository.save(topic);
     }
 
+    @Override
     public Topic create(Topic topic) {
         return this.topicRepository.save(topic);
     }
-
 }
