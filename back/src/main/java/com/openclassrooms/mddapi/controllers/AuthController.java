@@ -134,8 +134,6 @@ public class AuthController {
             // Récupérer les informations de l'utilisateur courant
             UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                     .getPrincipal();
-            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
-                    .getPrincipal();
 
             // Récupérer les roles de l'utilisateur
             List<String> roles = authService.getRoles(userDetails);
@@ -148,8 +146,6 @@ public class AuthController {
     }
 
     /**
-     * Cette méthode est utilisée pour mettre à jour les informations de
-     * l'utilisateur
      * Cette méthode est utilisée pour mettre à jour les informations de
      * l'utilisateur
      *

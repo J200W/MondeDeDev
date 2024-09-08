@@ -43,7 +43,6 @@ export class SubscriptionService {
      * @param subscriptionId
      */
     public unsubscribe(subscriptionId: number): Observable<ResponseAPI> {
-        console.log(subscriptionId);
         return this.httpClient.delete<ResponseAPI>(`${this.pathService}/sub/${subscriptionId}`);
     }
 

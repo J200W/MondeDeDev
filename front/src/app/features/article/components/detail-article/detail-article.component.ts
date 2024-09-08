@@ -13,9 +13,6 @@ import { Subscription } from 'rxjs';
     selector: 'app-detail-article',
     templateUrl: './detail-article.component.html',
     styleUrls: ['./detail-article.component.scss']
-    selector: 'app-detail-article',
-    templateUrl: './detail-article.component.html',
-    styleUrls: ['./detail-article.component.scss']
 })
 /**
  * Composant de détail d'un article
@@ -56,16 +53,6 @@ export class DetailArticleComponent implements OnInit, OnDestroy {
      */
     private articleSubscription: Subscription = new Subscription();
 
-    constructor(
-        private route: ActivatedRoute,
-        private matSnackBar: MatSnackBar,
-        private fb: FormBuilder,
-        private articleService: ArticleService,
-        private sessionService: SessionService,
-        private commentService: CommentService,
-        private router: Router
-    ) {
-    }
     constructor(
         private route: ActivatedRoute,
         private matSnackBar: MatSnackBar,

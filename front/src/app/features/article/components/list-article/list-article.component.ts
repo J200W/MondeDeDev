@@ -1,6 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { SessionService } from "../../../../core/services/session.service";
 import { ArticleService } from "../../../../core/services/article.service";
 import { Observable, Subscription } from "rxjs";
 import { Article } from "../../../../core/models/article.interface";

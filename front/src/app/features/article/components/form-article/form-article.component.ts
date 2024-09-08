@@ -13,9 +13,6 @@ import { Subscription } from 'rxjs';
     selector: 'app-create-article',
     templateUrl: './form-article.component.html',
     styleUrls: ['./form-article.component.scss']
-    selector: 'app-create-article',
-    templateUrl: './form-article.component.html',
-    styleUrls: ['./form-article.component.scss']
 })
 /**
  * Composant de création d'un article
@@ -71,7 +68,6 @@ export class FormArticleComponent implements OnInit, OnDestroy {
         this.articleSubscription.add(this.topicService.getAll().subscribe((topics) => {
             this.selectedTopic = topics;
         }));
-        console.log(this.sessionService.user);
     }
 
     ngOnDestroy(): void {

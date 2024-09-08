@@ -5,12 +5,8 @@ import { SessionService } from "../../../../core/services/session.service";
 import { Router } from "@angular/router";
 import { AuthService } from "../../service/auth.service";
 import { LoginRequest } from "../../interfaces/loginRequest.interface";
-import { User } from "../../../../core/models/user.interface";
 
 @Component({
-    selector: 'app-login',
-    templateUrl: './login.component.html',
-    styleUrls: ['./login.component.scss']
     selector: 'app-login',
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss']
@@ -21,11 +17,6 @@ export class LoginComponent implements OnDestroy {
      * Indique si le mot de passe est caché
      */
     public hide = true;
-    /**
-     * Indique si le mot de passe est caché
-     */
-    public hide = true;
-
     /**
      * Indique si une erreur est survenue lors de la connexion
      */

@@ -15,9 +15,6 @@ import { HttpErrorResponse } from '@angular/common/http';
     selector: 'app-me',
     templateUrl: './me.component.html',
     styleUrls: ['./me.component.scss']
-    selector: 'app-me',
-    templateUrl: './me.component.html',
-    styleUrls: ['./me.component.scss']
 })
 /**
  * Composant de profil
@@ -32,15 +29,7 @@ export class MeComponent implements OnInit, OnDestroy {
      * Indique si le mot de passe est caché
      */
     public hide = true;
-    /**
-     * Indique si le mot de passe est caché
-     */
-    public hide = true;
 
-    /**
-     * Indique si une erreur est survenue lors de la connexion
-     */
-    public onError = false;
     /**
      * Indique si une erreur est survenue lors de la connexion
      */

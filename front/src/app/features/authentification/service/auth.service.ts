@@ -32,7 +32,6 @@ export class AuthService {
      */
 
     public register(registerRequest: RegisterRequest): Observable<ResponseAPI> {
-        console.log('registerRequest', registerRequest);
         return this.httpClient.post<ResponseAPI>(
             `${this.pathService}/register`,
             registerRequest

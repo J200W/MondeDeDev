@@ -12,9 +12,6 @@ import { ResponseAPI } from '../authentification/interfaces/responseApiSuccess.i
     selector: 'app-theme',
     templateUrl: './theme.component.html',
     styleUrls: ['./theme.component.scss']
-    selector: 'app-theme',
-    templateUrl: './theme.component.html',
-    styleUrls: ['./theme.component.scss']
 })
 /**
  * Composant de thème
