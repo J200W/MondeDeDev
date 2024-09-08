@@ -6,8 +6,10 @@ import {MeComponent} from "./features/my-account/me/me.component";
 import {NotFoundComponent} from "./features/not-found/not-found.component";
 import {ThemeComponent} from "./features/theme/theme.component";
 
-// consider a guard combined with canLoad / canActivate route option
-// to manage unauthenticated user to access private routes
+/**
+ * Route de l'application
+ * @type {Routes}
+ */
 const routes: Routes = [
    {
       path: 'article',
@@ -39,5 +41,9 @@ const routes: Routes = [
    imports: [RouterModule.forRoot(routes)],
    exports: [RouterModule],
 })
+/**
+ * Module de routage
+ * @class
+ */
 export class AppRoutingModule {
 }

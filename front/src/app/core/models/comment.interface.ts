@@ -1,11 +1,15 @@
+/**
+ * Interface pour les commentaires
+ * @interface
+ */
 export interface Comment {
    id: string;
    content: string;
    user: {
-      id: string;
+      id: number;
       username: string;
    };
-   article: {
+   post: {
       id: string;
    };
    date: Date;

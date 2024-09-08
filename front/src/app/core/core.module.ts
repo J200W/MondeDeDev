@@ -32,5 +32,9 @@ import {CookieService} from "ngx-cookie-service";
       FooterComponent
    ]
 })
+/**
+ * Module principal
+ * @class
+ */
 export class CoreModule {
 }

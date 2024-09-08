@@ -3,11 +3,12 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
+/**
+ * Intercepteur HTTP pour ajouter le token JWT aux requêtes
+ * @class
+ * @implements {HttpInterceptor}
+ */
 export class JwtInterceptor implements HttpInterceptor {
-    constructor(
-    ) {
-    }
-
     public intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         req = req.clone({
             withCredentials: true,
@@ -17,6 +18,9 @@ export class JwtInterceptor implements HttpInterceptor {
     }
 }
 
+/**
+ * Liste des intercepteurs HTTP
+ */
 export const httpInterceptorProviders = [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
 ];

@@ -1,3 +1,7 @@
+/**
+ * Interface pour les utilisateurs
+ * @interface
+ */
 export interface User {
    id: number,
    username: string,

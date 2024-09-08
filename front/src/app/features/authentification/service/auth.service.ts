@@ -1,71 +1,96 @@
-import {HttpClient} from '@angular/common/http';
-import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {LoginRequest} from '../interfaces/loginRequest.interface';
-import {AuthSuccess} from '../interfaces/authSuccess.interface';
-import {RegisterRequest} from '../interfaces/registerRequest.interface';
-import {User} from 'src/app/core/models/user.interface';
-import {CookieService} from "ngx-cookie-service";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { LoginRequest } from '../interfaces/loginRequest.interface';
+import { ResponseStatus } from '../interfaces/responseSuccess.interface';
+import { RegisterRequest } from '../interfaces/registerRequest.interface';
+import { User } from 'src/app/core/models/user.interface';
+import { environment } from 'src/environments/environment'; 
 
 @Injectable({
-   providedIn: 'root',
+    providedIn: 'root',
 })
 export class AuthService {
-   /**
-    * Chemin vers le service
-    * @type {string}
-    * @memberof AuthService
-    * @default api/auth
-    * @private
-    */
-   private pathService: string = 'http://localhost:8080/api/auth';
+    /**
+     * Chemin vers le service
+     * @type {string}
+     * @memberof AuthService
+     * @default api/auth
+     * @private
+     */
+    private pathService: string = `${environment.apiBaseUrl}/api/auth`;
 
-   constructor(private httpClient: HttpClient, private cookieService: CookieService) {
-   }
+    constructor(private httpClient: HttpClient) {
+    }
 
-   /**
-    * Enregistre un utilisateur
-    * @param {RegisterRequest} registerRequest
-    * @return {Observable<AuthSuccess>}
-    * @memberof AuthService
-    * @public
-    */
+    /**
+     * Enregistre un utilisateur
+     * @param {RegisterRequest} registerRequest
+     * @return {Observable<ResponseStatus>}
+     * @memberof AuthService
+     * @public
+     */
 
-   public register(registerRequest: RegisterRequest): Observable<AuthSuccess> {
-      console.log('registerRequest', registerRequest);
-      return this.httpClient.post<AuthSuccess>(
-          `${this.pathService}/register`,
-          registerRequest
-      );
-   }
+    public register(registerRequest: RegisterRequest): Observable<ResponseStatus> {
+        console.log('registerRequest', registerRequest);
+        return this.httpClient.post<ResponseStatus>(
+            `${this.pathService}/register`,
+            registerRequest
+        );
+    }
 
-   /**
-    * Connecte un utilisateur
-    * @param {LoginRequest} loginRequest
-    * @returns {Observable<AuthSuccess>}
-    * @memberof AuthService
-    * @public
-    */
+    /**
+     * Connecte un utilisateur
+     * @param {LoginRequest} loginRequest
+     * @returns {Observable<AuthSuccess>}
+     * @memberof AuthService
+     * @public
+     */
 
-   public login(loginRequest: LoginRequest): Observable<AuthSuccess> {
-      return this.httpClient.post<AuthSuccess>(
-          `${this.pathService}/login`,
-          loginRequest
-      );
-   }
+    public login(loginRequest: LoginRequest): Observable<ResponseStatus> {
+        return this.httpClient.post<ResponseStatus>(
+            `${this.pathService}/login`,
+            loginRequest
+        );
+    }
 
-   /**
-    * Récupère l'utilisateur connecté
-    * @returns {Observable<User>}
-    * @memberof AuthService
-    * @public
-    */
+    /**
+     * Récupère l'utilisateur connecté
+     * @returns {Observable<User>}
+     * @memberof AuthService
+     * @public
+     */
 
-   public me(): Observable<User> {
-      return this.httpClient.get<User>(`${this.pathService}/me`, {
-         headers: {
-            Authorization: `Bearer ${this.cookieService.get('token')}`
-         },
-      });
-   }
+    public me(): Observable<User> {
+        return this.httpClient.get<User>(`${this.pathService}/me`);
+    }
+
+    /**
+     * Met à jour l'utilisateur connecté
+     * @param {User} user
+     * @returns {Observable<void>}
+     */
+    public update(user: User): Observable<void> {
+        return this.httpClient.put<void>(`${this.pathService}/me`, user);
+     }
+
+    /**
+     * Déconnecte l'utilisateur
+     * @returns {Observable<void>}
+     * @memberof AuthService
+     * @public
+     */
+    public logout(): Observable<void> {
+        return this.httpClient.get<void>(`${this.pathService}/logout`);
+    }
+
+    /**
+     * Vérifie si l'utilisateur est connecté
+     * @returns {Observable<User>}
+     * @memberof AuthService
+     * @public
+     */
+    public isLogged(): Observable<boolean> {
+        return this.httpClient.get<boolean>(`${this.pathService}/is-logged`);
+    }
 }

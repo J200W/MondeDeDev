@@ -2,6 +2,7 @@ import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {Article} from "../models/article.interface";
+import {environment} from "../../../environments/environment";
 
 @Injectable({
    providedIn: 'root',
@@ -14,16 +15,20 @@ export class ArticleService {
     * @default api/auth
     * @private
     */
-   private pathService: string = 'http://localhost:8080/api/post';
+   private pathService: string = `${environment.apiBaseUrl}/api/post`;
 
+   /**
+    * Constructeur du service
+    * @param httpClient 
+    */
    constructor(private httpClient: HttpClient) {
    }
 
    /**
     * Obtenir un article
     * @returns {Observable<Article>}
-    * @public
     * @param id
+    * @public
     */
    public getPost(id: string): Observable<Article> {
       return this.httpClient.get<Article>(`${this.pathService}/${id}`);
@@ -43,18 +48,7 @@ export class ArticleService {
     * @param article
     * @returns {Observable<Article>}
     */
-   public create(article: any): Observable<Article> {
+   public create(article: Article): Observable<Article> {
       return this.httpClient.post<Article>(`${this.pathService}/create`, article);
    }
-
-   /**
-    * Mettre à jour un article
-    * @param articleId
-    * @param article
-    * @returns {Observable<Article>}
-    */
-   public update(article: any): Observable<Article> {
-      return this.httpClient.post<Article>(`${this.pathService}/update`, article);
-   }
-
 }

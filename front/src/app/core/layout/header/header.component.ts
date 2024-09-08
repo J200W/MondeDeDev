@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from "rxjs";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Observable, Subscription } from "rxjs";
 import { AuthService } from "../../../features/authentification/service/auth.service";
 import { Router } from "@angular/router";
 import { SessionService } from "../../services/session.service";
@@ -10,48 +10,66 @@ import { User } from "../../models/user.interface";
     templateUrl: './header.component.html',
     styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent implements OnInit {
+/**
+ * Composant d'en-tête
+ * @class
+ * @implements {OnInit}
+ * @implements {OnDestroy}
+ * @public
+ */
+export class HeaderComponent implements OnInit, OnDestroy{
+    /**
+     * Indique si le menu est visible
+     * @type {boolean}
+     */
     public menuIsVisible: boolean = false;
-    public isLogged$: Observable<boolean>;
+    /**
+     * Utilisateur
+     * @type {User | undefined}
+     */
+    public isLogged$: Observable<boolean> = new Observable<boolean>();
+    /**
+     * Subscription au router
+     * @type {Subscription}
+     */
+    private routerSubscription: Subscription = new Subscription();
 
     constructor(
-        private authService: AuthService,
         public router: Router,
         private sessionService: SessionService
-    ) {
-        this.isLogged$ = this.sessionService.$isLogged();
-        router.events.subscribe((val) => {
-            this.menuIsVisible = false;
-        });
-
-    }
+    ) {}
 
     ngOnInit(): void {
-        this.autoLog();
+        this.isLogged$ = this.sessionService.$isLogged();
+        this.routerSubscription.add(this.router.events.subscribe((val) => {
+            this.menuIsVisible = false;
+        }));
     }
 
+    ngOnDestroy(): void {
+        this.routerSubscription.unsubscribe();
+    }
+
+    /**
+     * Retourne l'url courante
+     * @returns {string}
+     */
     public currentUrl(): string {
         return this.router.url;
     }
 
+    /**
+     * Bascule le menu
+     */
     public toggleMenu() {
         this.menuIsVisible = !this.menuIsVisible;
     }
     
-
+    /**
+     * Déconnecte l'utilisateur
+     */
     public logout(): void {
         this.sessionService.logOut();
         this.router.navigate(['/']);
-    }
-
-    public autoLog(): void {
-        this.authService.me().subscribe(
-            (user: User) => {
-                this.sessionService.logIn(user);
-            },
-            (_) => {
-                this.sessionService.logOut();
-            }
-        );
     }
 }
