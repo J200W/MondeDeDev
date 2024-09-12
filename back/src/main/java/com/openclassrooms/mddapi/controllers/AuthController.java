@@ -193,7 +193,7 @@ public class AuthController {
             // Vérifier si le nom d'utilisateur est déjà utilisé par un autre utilisateur
             if (userService.findByUsername(userRequest.getUsername()).isPresent() &&
                     !userService.findByUsername(userRequest.getUsername()).get().getId().equals(userId)) {
-                throw new RuntimeException("Erreur: Nom d'utilisateur déjà utilisé!");
+                throw new AlreadyInUseException("Erreur: Nom d'utilisateur déjà utilisé!");
             }
 
             // Récupérer l'utilisateur à partir de la base de données
