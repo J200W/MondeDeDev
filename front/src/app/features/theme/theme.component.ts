@@ -60,12 +60,12 @@ export class ThemeComponent implements OnInit, OnDestroy {
      * @param theme 
      */
     public subscribe(theme: Topic) {
-        this.themeSubscription.add(this.subscriptionService.subscribe(theme.id).subscribe({
+        this.themeSubscription.add(this.subscriptionService.subscribe(theme.url).subscribe({
             next: (response: ResponseAPI) => {
                 this.matSnackBar.open(response.message, 'OK', {
                     duration: 3000,
                 });
-                this.topics = this.topics.filter((t: Topic) => t.id !== theme.id);
+                this.topics = this.topics.filter((t: Topic) => t.url !== theme.url);
             },
             error: (error: ResponseAPI) => {
                 this.matSnackBar.open(error.message, 'OK', {

@@ -31,6 +31,10 @@ public class Post {
     @NonNull
     public String title;
 
+    @Column(name = "url")
+    @NonNull
+    public String url;
+
     @Column(name = "content")
     @NonNull
     public String content;

@@ -41,6 +41,18 @@ public class TopicService implements ITopicService {
     }
 
     @Override
+    public Topic findByTitle(String title) {
+        return this.topicRepository.findByTitle(title).orElseThrow(
+                () -> new ResourceNotFoundException("Thème non trouvé avec le titre " + title));
+    }
+
+    @Override
+    public Topic findByUrl(String url) {
+        return this.topicRepository.findByUrl(url).orElseThrow(
+                () -> new ResourceNotFoundException("Thème non trouvé avec l'url " + url));
+    }
+
+    @Override
     public Topic update(Integer id, Topic topic) {
         topic.setId(id);
         return this.topicRepository.save(topic);

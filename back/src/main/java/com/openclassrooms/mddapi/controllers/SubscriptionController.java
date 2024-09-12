@@ -1,5 +1,6 @@
 package com.openclassrooms.mddapi.controllers;
 
+import com.openclassrooms.mddapi.dto.SubscriptionDto;
 import com.openclassrooms.mddapi.exception.AlreadyInUseException;
 import com.openclassrooms.mddapi.exception.ResourceNotFoundException;
 import com.openclassrooms.mddapi.models.Subscription;
@@ -7,7 +8,9 @@ import com.openclassrooms.mddapi.models.Topic;
 import com.openclassrooms.mddapi.payload.response.MessageResponse;
 import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
 import com.openclassrooms.mddapi.service.SubscriptionService;
+import com.openclassrooms.mddapi.service.interfaces.IAuthService;
 import com.openclassrooms.mddapi.service.interfaces.ITopicService;
+import com.openclassrooms.mddapi.utils.ModelMapperService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,9 +45,21 @@ public class SubscriptionController {
     private ITopicService topicService;
 
     /**
+     * Injection de IAuthService
+     */
+    @Autowired
+    private IAuthService authService;
+
+    /**
+     * Injection de ModelMapperService.
+     */
+    @Autowired
+    private ModelMapperService modelMapperService;
+
+    /**
      * Récupérer toutes les souscriptions d'un utilisateur
      *
-     * @return - List<Subscription>
+     * @return - List<SubscriptionDto>
      */
     @GetMapping("/me")
     @ResponseStatus(value = HttpStatus.OK)
@@ -53,14 +68,14 @@ public class SubscriptionController {
             @ApiResponse(responseCode = "200"),
             @ApiResponse(responseCode = "400", description = "Impossible de récupérer les abonnements")
     })
-    public List<Subscription> getAllSubscriptionsByUser() {
+    public List<SubscriptionDto> getAllSubscriptionsByUser() {
         try {
             UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                     .getPrincipal();
             Integer userId = userDetails.getId();
             List<Subscription> subscriptions = subscriptionService.findAllSubscriptionByUser(userId).get();
-
-            return subscriptions;
+            List<SubscriptionDto> subscriptionDtos = modelMapperService.convertSubsToSubDtos(subscriptions);
+            return subscriptionDtos;
         } catch (Exception e) {
             throw new RuntimeException("Erreur: Impossible de récupérer les abonnements");
         }
@@ -72,7 +87,7 @@ public class SubscriptionController {
      * @param subscription - La souscription à créer
      * @return - MessageResponse
      */
-    @PostMapping("/sub/{topic}")
+    @PostMapping("/sub/{topicUrl}")
     @ResponseStatus(value = HttpStatus.CREATED)
     @Operation(summary = "Créer un abonnement")
     @ApiResponses(value = {
@@ -80,18 +95,18 @@ public class SubscriptionController {
             @ApiResponse(responseCode = "400", description = "Impossible de créer l'abonnement"),
             @ApiResponse(responseCode = "409", description = "L'abonnement existe déjà")
     })
-    public MessageResponse createSubscription(@PathVariable Integer topic) {
+    public MessageResponse createSubscription(@PathVariable String topicUrl) {
         try {
             UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                     .getPrincipal();
             Integer userId = userDetails.getId();
-            if (subscriptionService.existsByTopicIdAndUserId(topic, userId)) {
+            if (subscriptionService.existsByTopicUrlAndUserId(topicUrl, userId)) {
                 throw new AlreadyInUseException("Erreur: L'abonnement existe déjà");
             }
+            Topic topicEntity = topicService.findByUrl(topicUrl);
             Subscription subscription = new Subscription(
                     userId,
-                    topic);
-            Topic topicEntity = topicService.findById(topic);
+                    topicEntity.getId());
             subscriptionService.create(subscription);
             return new MessageResponse("Vous êtes abonné au sujet: " + topicEntity.getTitle(),
                     HttpStatus.CREATED.value());
@@ -109,7 +124,7 @@ public class SubscriptionController {
      * @param id - L'identifiant de la souscription
      * @return - MessageResponse
      */
-    @DeleteMapping("/sub/{id}")
+    @DeleteMapping("/sub/{url}")
     @ResponseStatus(value = HttpStatus.OK)
     @Operation(summary = "Supprimer un abonnement")
     @ApiResponses(value = {
@@ -117,12 +132,16 @@ public class SubscriptionController {
             @ApiResponse(responseCode = "400", description = "Impossible de supprimer l'abonnement"),
             @ApiResponse(responseCode = "404", description = "L'abonnement n'existe pas")
     })
-    public MessageResponse deleteSubscription(@PathVariable Integer id) {
+    public MessageResponse deleteSubscription(@PathVariable String url) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        Integer userId = authService.getUserId(userDetails);
         try {
-            if (subscriptionService.findSubscriptionById(id) == null) {
+            Subscription subscription = subscriptionService.findSubscriptionByUserIdAndPostUrl(userId, url);
+            if (subscription == null) {
                 throw new ResourceNotFoundException("Erreur: L'abonnement n'existe pas");
             }
-            subscriptionService.delete(id);
+            subscriptionService.delete(subscription.getId());
             return new MessageResponse("Vous êtes désabonné du sujet", HttpStatus.OK.value());
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());

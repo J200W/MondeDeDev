@@ -17,10 +17,10 @@ public interface ICommentService {
 
     /**
      * Récupérer tous les commentaires par article
-     * @param postId
+     * @param postUrl
      * @return - List<Comment>
      */
-    List<Comment> findAllCommentsByArticle(Integer postId);
+    List<Comment> findAllCommentsByArticle(String postUrl);
 
     /**
      * Récupérer un commentaire par son id

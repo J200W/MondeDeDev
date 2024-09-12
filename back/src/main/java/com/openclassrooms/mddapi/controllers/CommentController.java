@@ -6,6 +6,7 @@ import com.openclassrooms.mddapi.models.Comment;
 import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
 import com.openclassrooms.mddapi.service.interfaces.IAuthService;
 import com.openclassrooms.mddapi.service.interfaces.ICommentService;
+import com.openclassrooms.mddapi.service.interfaces.IPostService;
 import com.openclassrooms.mddapi.utils.ModelMapperService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +36,12 @@ public class CommentController {
     @Autowired
     private ICommentService commentService;
 
+        /**
+     * Injection de IPostService.
+     */
+    @Autowired
+    private IPostService postService;
+
     /**
      * Injection de IAuthService.
      */
@@ -48,15 +55,15 @@ public class CommentController {
     private ModelMapperService modelMapperService;
 
     @ResponseStatus(value = HttpStatus.OK)
-    @GetMapping("/all/{postId}")
+    @GetMapping("/all/{postUrl}")
     @Operation(summary = "Récupérer tous les commentaires d'un article")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Les commentaires ont été récupérés"),
             @ApiResponse(responseCode = "400", description = "Impossible de récupérer les commentaires")
     })
-    public List<CommentDto> getAllCommentsByArticle(@PathVariable Integer postId) {
+    public List<CommentDto> getAllCommentsByArticle(@PathVariable String postUrl) {
         try {
-            List<Comment> comments = commentService.findAllCommentsByArticle(postId);
+            List<Comment> comments = commentService.findAllCommentsByArticle(postUrl);
             List<CommentDto> commentDtos = comments.stream().map(comment -> {
                 CommentDto dto = new CommentDto();
                 dto.setUser(modelMapperService.getModelMapper().map(comment.getUser(), UserNoRoleDto.class));
@@ -82,6 +89,7 @@ public class CommentController {
             UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                     .getPrincipal();
             comment.getUser().setId(authService.getUserId(userDetails));
+            comment.getPost().setId(postService.getByUrl(comment.getPost().getUrl()).getId());
             Comment newComment = commentService.create(comment);
             CommentDto commentDto = modelMapperService.getModelMapper().map(newComment, CommentDto.class);
             return commentDto;

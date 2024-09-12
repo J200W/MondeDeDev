@@ -87,18 +87,18 @@ export class FormArticleComponent implements OnInit, OnDestroy {
             return;
         }
         const articleDate: Article = {
-            id: 0,
-            date: new Date(),
             title: this.articleForm!.get('title')?.value.trim(),
+            url: '',
             content: this.articleForm!.get('content')?.value.replace(/\n/g, '<br>'),
+            date: new Date(),
             user: {
                 email: this.sessionService.user!.email,
                 username: this.sessionService.user!.username,
             },
             topic: {
-                id: this.articleForm!.get('topic')?.value,
+                title: this.articleForm!.get('topic')?.value,
                 description: '',
-                title: ''
+                url: ''
             }
         };
 
@@ -121,8 +121,8 @@ export class FormArticleComponent implements OnInit, OnDestroy {
             article !== undefined
         ) {
             this.articleForm = this.fb.group({
-                topic: [article ? article.topic.id : '', [Validators.required]],
-                title: [article ? article.title : '', [Validators.required]],
+                topic: ['', [Validators.required]],
+                title: ['', [Validators.required]],
                 content: [
                     article ? article.content : '',
                     [Validators.required, Validators.maxLength(2000)],

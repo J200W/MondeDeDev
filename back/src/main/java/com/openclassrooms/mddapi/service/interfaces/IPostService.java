@@ -16,10 +16,10 @@ public interface IPostService {
 
     /**
      * Récupérer un post par son id
-     * @param id
+     * @param url
      * @return - Post
      */
-    Post getById(Integer id);
+    Post getByUrl(String url);
 
     /**
      * Mettre à jour un post

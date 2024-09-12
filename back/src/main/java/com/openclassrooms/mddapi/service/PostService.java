@@ -29,8 +29,8 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public Post getById(Integer id) {
-        return this.postRepository.findById(id).orElse(null);
+    public Post getByUrl(String id) {
+        return this.postRepository.findByUrl(id).orElse(null);
     }
 
     @Override

@@ -3,7 +3,7 @@
  * @interface
  */
 export interface Topic {
-   id: number;
    title: string;
+   url: string;
    description: string
 }

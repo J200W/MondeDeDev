@@ -6,6 +6,7 @@ import com.openclassrooms.mddapi.models.Post;
 import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
 import com.openclassrooms.mddapi.service.interfaces.IAuthService;
 import com.openclassrooms.mddapi.service.interfaces.IPostService;
+import com.openclassrooms.mddapi.service.interfaces.ITopicService;
 import com.openclassrooms.mddapi.utils.ModelMapperService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,8 +42,10 @@ public class PostController {
     private IAuthService authService;
 
     /*
-     * Injection de ModelMapperService.
+     * Injection de ITopicService.
      */
+    @Autowired
+    private ITopicService topicService;
 
     /**
      * Injection de ModelMapperService.
@@ -62,31 +65,32 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "Les articles ont été récupérés"),
             @ApiResponse(responseCode = "400", description = "Impossible de récupérer les articles")
     })
-    public List<Post> getAllPosts() {
+    public List<PostDto> getAllPosts() {
         try {
             List<Post> posts = postService.findAll();
-            return posts;
+            List<PostDto> postsDtos = modelMapperService.convertPostsToPostDto(posts);
+            return postsDtos;
         } catch (Exception e) {
             throw new RuntimeException("Erreur: Impossible de récupérer les articles");
         }
     }
 
     /**
-     * Récupérer un post par son identifiant
+     * Récupérer un post par son url
      * 
-     * @param id - L'identifiant du post
+     * @param url - L'url du post
      * @return - PostDto
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{url}")
     @ResponseStatus(value = HttpStatus.OK)
     @Operation(summary = "Récupérer un article par son identifiant")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "L'article a été récupéré"),
             @ApiResponse(responseCode = "400", description = "Impossible de récupérer l'article")
     })
-    public PostDto getPostById(@PathVariable Integer id) {
+    public PostDto getPostByUrl(@PathVariable String url) {
         try {
-            Post post = postService.getById(id);
+            Post post = postService.getByUrl(url);
             PostDto postDto = modelMapperService.getModelMapper().map(post, PostDto.class);
             postDto.setUser(modelMapperService.convertUserToUserDto(post.getUser()));
             return postDto;
@@ -116,6 +120,7 @@ public class PostController {
             UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                     .getPrincipal();
             post.getUser().setId(authService.getUserId(userDetails));
+            post.getTopic().setId(topicService.findByUrl(post.getTopic().getTitle()).getId());
             Post newPost = postService.create(post);
             PostDto newPostDto = modelMapperService.getModelMapper().map(newPost, PostDto.class);
             return newPostDto;

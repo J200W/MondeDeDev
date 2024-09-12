@@ -28,6 +28,21 @@ public interface ITopicService {
     Topic findById(Integer id);
 
     /**
+     * Trouver un thème par son titre
+     * @param title
+     * @return - Topic
+     */
+
+     Topic findByTitle(String title);
+
+     /**
+      * Trouver un thème par son url
+      * @param url
+      * @return
+      */
+     Topic findByUrl(String url);
+
+     /**
      * Mettre à jour un thème
      * @param id
      * @param topic

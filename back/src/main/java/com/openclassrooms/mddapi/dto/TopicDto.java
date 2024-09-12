@@ -13,13 +13,20 @@ import lombok.Setter;
 @NoArgsConstructor
 @Schema(name = "TopicDto", description = "La classe TopicDto est un objet de transfert de données pour les thèmes")
 public class TopicDto {
-   
+
     /**
-     * L'identifiant du thème
+     * Le titre du thème
      */
     @Getter
     @Setter
     public String title;
+
+    /**
+     * L'url du thème
+     */
+    @Getter
+    @Setter
+    public String url;
 
     /**
      * La description du thème

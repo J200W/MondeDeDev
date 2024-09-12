@@ -125,9 +125,9 @@ export class MeComponent implements OnInit, OnDestroy {
      * @param {SubscriptionInterface} subscription
      */
     public unsubscribe(subscription: SubscriptionInterface): void {
-        this.meSubscription.add(this.subscriptionService.unsubscribe(subscription.id).subscribe({
+        this.meSubscription.add(this.subscriptionService.unsubscribe(subscription.topic.url).subscribe({
             next: () => {
-                this.subscriptions = this.subscriptions.filter((sub) => sub.id !== subscription.id);
+                this.subscriptions = this.subscriptions.filter((sub) => sub.topic.url !== subscription.topic.url);
                 this.matSnackBar.open('Désabonner à: ' + subscription.topic.title, 'Fermer', {
                     duration: 5000,
                 });

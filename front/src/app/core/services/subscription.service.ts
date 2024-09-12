@@ -31,8 +31,8 @@ export class SubscriptionService {
      * @public
      * @param topicId
      */
-    public subscribe(topicId: number): Observable<ResponseAPI> {
-        return this.httpClient.post<ResponseAPI>(`${this.pathService}/sub/${topicId}`, {});
+    public subscribe(topicUrl: string): Observable<ResponseAPI> {
+        return this.httpClient.post<ResponseAPI>(`${this.pathService}/sub/${topicUrl}`, {});
     }
 
     /**
@@ -42,7 +42,7 @@ export class SubscriptionService {
      * @public
      * @param subscriptionId
      */
-    public unsubscribe(subscriptionId: number): Observable<ResponseAPI> {
+    public unsubscribe(subscriptionId: string): Observable<ResponseAPI> {
         return this.httpClient.delete<ResponseAPI>(`${this.pathService}/sub/${subscriptionId}`);
     }
 

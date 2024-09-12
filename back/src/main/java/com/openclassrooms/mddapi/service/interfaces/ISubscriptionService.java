@@ -22,7 +22,7 @@ public interface ISubscriptionService {
      * @param id
      * @return - Subscription
      */
-    Subscription findSubscriptionById(Integer id);
+    Subscription findSubscriptionByUserIdAndPostUrl(Integer userId, String postUrl);
 
     /**
      * Supprimer un abonnement par son id
@@ -51,10 +51,10 @@ public interface ISubscriptionService {
     void create(Subscription subscription);
 
     /**
-     * Vérifier si un abonnement existe par l'id du sujet et l'id de l'utilisateur
-     * @param topicId
+     * Vérifier si un abonnement existe par l'url du sujet et l'id de l'utilisateur
+     * @param topicUrl
      * @param userId
      * @return - Boolean
      */
-    Boolean existsByTopicIdAndUserId(Integer topicId, Integer userId);
+    Boolean existsByTopicUrlAndUserId(String topicUrl, Integer userId);
 }

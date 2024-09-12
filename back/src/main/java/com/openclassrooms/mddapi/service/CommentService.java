@@ -29,8 +29,8 @@ public class CommentService implements ICommentService {
     }
 
     @Override
-    public List<Comment> findAllCommentsByArticle(Integer postId) {
-        return this.commentRepository.findAllByPost_id(postId).get();
+    public List<Comment> findAllCommentsByArticle(String postUrl) {
+        return this.commentRepository.findAllByPost_url(postUrl).get();
     }
 
     @Override

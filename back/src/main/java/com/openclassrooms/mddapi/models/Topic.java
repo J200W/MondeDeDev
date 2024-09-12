@@ -28,6 +28,10 @@ public class Topic {
     @NonNull
     public String title;
 
+    @Column(name = "url")
+    @NonNull
+    public String url;
+
     @Column(name = "description")
     @NonNull
     public String description;
