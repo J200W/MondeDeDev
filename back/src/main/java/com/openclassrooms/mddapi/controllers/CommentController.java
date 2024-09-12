@@ -3,6 +3,8 @@ package com.openclassrooms.mddapi.controllers;
 import com.openclassrooms.mddapi.dto.CommentDto;
 import com.openclassrooms.mddapi.dto.UserNoRoleDto;
 import com.openclassrooms.mddapi.models.Comment;
+import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
+import com.openclassrooms.mddapi.service.interfaces.IAuthService;
 import com.openclassrooms.mddapi.service.interfaces.ICommentService;
 import com.openclassrooms.mddapi.utils.ModelMapperService;
 
@@ -14,6 +16,7 @@ import com.openclassrooms.mddapi.exception.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +34,12 @@ public class CommentController {
      */
     @Autowired
     private ICommentService commentService;
+
+    /**
+     * Injection de IAuthService.
+     */
+    @Autowired
+    private IAuthService authService;
 
     /**
      * Injection de ModelMapperService.
@@ -70,6 +79,9 @@ public class CommentController {
     })
     public CommentDto addComment(@Valid @RequestBody Comment comment) {
         try {
+            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
+            comment.getUser().setId(authService.getUserId(userDetails));
             Comment newComment = commentService.create(comment);
             CommentDto commentDto = modelMapperService.getModelMapper().map(newComment, CommentDto.class);
             return commentDto;

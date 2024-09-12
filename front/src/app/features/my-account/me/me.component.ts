@@ -8,7 +8,6 @@ import { Router } from "@angular/router";
 import { StrongPasswordRegx } from "../../../core/constants/strong-password-regex";
 import { AuthService } from '../../authentification/service/auth.service';
 import { Subscription } from 'rxjs';
-import { ResponseAPI } from '../../authentification/interfaces/responseApiSuccess.interface';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
@@ -40,7 +39,6 @@ export class MeComponent implements OnInit, OnDestroy {
      * @type {FormGroup}
      */
     public profileForm: FormGroup = this.fb.group({
-        id: this.sessionService!.user?.id,
         username: ['', [Validators.required]],
         email: ['', [Validators.required, Validators.email]],
         password: ['', Validators.pattern(StrongPasswordRegx)],
@@ -91,8 +89,8 @@ export class MeComponent implements OnInit, OnDestroy {
      * Envoie le formulaire de profil
      */
     public save(): void {
-        if (this.profileForm.get('password')!.value !== '' &&
-            this.profileForm.get('password')!.value !== null &&
+        if (this.profileForm.get('password')!.value !== null &&
+            this.profileForm.get('password')!.value.trim() !== '' &&
             !StrongPasswordRegx.test(this.profileForm.get('password')!.value)) {
             this.matSnackBar.open('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.', 'Fermer', {
                 duration: 5000,
@@ -100,6 +98,13 @@ export class MeComponent implements OnInit, OnDestroy {
             return;
         }
 
+        if (this.profileForm.get('email')!.value.trim() === '' ||
+            this.profileForm.get('username')!.value.trim() === '') {
+            this.matSnackBar.open('Veuillez remplir tous les champs du formulaire', 'Fermer', {
+                duration: 5000,
+            });
+            return;
+        }
         this.meSubscription.add(this.authService.update(this.profileForm.value).subscribe({
             next: () => {
                 this.matSnackBar.open('Profil mis à jour ! Veuillez vous reconnecter.', 'Fermer', {

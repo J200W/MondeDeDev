@@ -69,7 +69,6 @@ export class DetailArticleComponent implements OnInit, OnDestroy {
         this.articleSubscription.add(this.articleService.getPost(this.id).subscribe((article) => {
             this.article = article;
             this.commentForm = this.fb.group({
-                user: [this.sessionService.user!.id],
                 post: [article.id],
                 content: ['', [Validators.required, Validators.min(2)]]
             })
@@ -91,9 +90,18 @@ export class DetailArticleComponent implements OnInit, OnDestroy {
      * Soumettre le commentaire
      */
     public submitComment(): void {
+        if (this.commentForm.get('user')?.value.trim() === '' ||
+            this.commentForm.get('content')?.value.trim() === ''
+        ) {
+            this.matSnackBar.open(
+                'Veuillez remplir tous les champs du formulaire',
+                'Fermer', {
+                duration: 500
+            });
+            return;
+        }
         let formValue: Comment = {
             user: {
-                id: this.sessionService.user!.id,
                 username: this.sessionService.user!.username
             },
             post: {

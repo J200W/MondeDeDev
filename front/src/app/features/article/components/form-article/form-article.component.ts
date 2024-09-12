@@ -78,13 +78,20 @@ export class FormArticleComponent implements OnInit, OnDestroy {
      * Soumettre le formulaire
      */
     public submit(): void {
+        if (this.articleForm!.get('title')?.value.trim() === '' ||
+            this.articleForm!.get('content')?.value.trim() === '' ||
+            this.articleForm!.get('topic')?.value === '') {
+            this.matSnackBar.open('Veuillez remplir tous les champs', 'Fermer', {
+                duration: 2000,
+            });
+            return;
+        }
         const articleDate: Article = {
             id: 0,
             date: new Date(),
-            title: this.articleForm!.get('title')?.value,
+            title: this.articleForm!.get('title')?.value.trim(),
             content: this.articleForm!.get('content')?.value.replace(/\n/g, '<br>'),
             user: {
-                id: this.sessionService.user!.id,
                 email: this.sessionService.user!.email,
                 username: this.sessionService.user!.username,
             },
@@ -111,8 +118,7 @@ export class FormArticleComponent implements OnInit, OnDestroy {
      */
     private initForm(article?: Article): void {
         if (
-            article !== undefined &&
-            article?.user?.id == this.sessionService.user!.id
+            article !== undefined
         ) {
             this.articleForm = this.fb.group({
                 topic: [article ? article.topic.id : '', [Validators.required]],

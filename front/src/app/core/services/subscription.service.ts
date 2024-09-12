@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SubscriptionInterface } from "../models/subscription.interface";
 import { ResponseAPI } from 'src/app/features/authentification/interfaces/responseApiSuccess.interface';
-import {environment} from "../../../environments/environment";
+import { environment } from "src/app/environments/environment";
 
 @Injectable({
     providedIn: 'root',

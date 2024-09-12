@@ -8,7 +8,6 @@ export interface Article {
    content: string;
    date: Date;
    user: {
-      id: number,
       email: string,
       username: string,
    },

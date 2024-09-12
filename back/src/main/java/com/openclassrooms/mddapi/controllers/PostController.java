@@ -3,6 +3,8 @@ package com.openclassrooms.mddapi.controllers;
 import com.openclassrooms.mddapi.dto.PostDto;
 import com.openclassrooms.mddapi.exception.AlreadyInUseException;
 import com.openclassrooms.mddapi.models.Post;
+import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
+import com.openclassrooms.mddapi.service.interfaces.IAuthService;
 import com.openclassrooms.mddapi.service.interfaces.IPostService;
 import com.openclassrooms.mddapi.utils.ModelMapperService;
 
@@ -13,6 +15,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +35,16 @@ public class PostController {
     private IPostService postService;
 
     /**
+     * Injection de IAuthService.
+     */
+    @Autowired
+    private IAuthService authService;
+
+    /*
+     * Injection de ModelMapperService.
+     */
+
+    /**
      * Injection de ModelMapperService.
      */
     @Autowired
@@ -39,6 +52,7 @@ public class PostController {
 
     /**
      * Récupérer tous les posts
+     * 
      * @return - List<Post>
      */
     @GetMapping("/all")
@@ -59,6 +73,7 @@ public class PostController {
 
     /**
      * Récupérer un post par son identifiant
+     * 
      * @param id - L'identifiant du post
      * @return - PostDto
      */
@@ -82,6 +97,7 @@ public class PostController {
 
     /**
      * Créer un post
+     * 
      * @param post - Le post à créer
      * @return - PostDto
      */
@@ -94,9 +110,12 @@ public class PostController {
     })
     public PostDto createPost(@Valid @RequestBody Post post) {
         try {
-            if(postService.findByTitle(post.getTitle())) {
+            if (postService.findByTitle(post.getTitle())) {
                 throw new AlreadyInUseException("Erreur: Un article avec ce titre existe déjà");
             }
+            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
+            post.getUser().setId(authService.getUserId(userDetails));
             Post newPost = postService.create(post);
             PostDto newPostDto = modelMapperService.getModelMapper().map(newPost, PostDto.class);
             return newPostDto;

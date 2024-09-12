@@ -11,8 +11,8 @@
         </div>
         <div class="article-sub-header">
             <p>{{ article?.date | date: 'dd/MM/yyyy' }}</p>
-            <p>{{ article?.user!.username }}</p>
-            <p>{{ article?.topic!.title }}</p>
+            <p>{{ article?.user?.username }}</p>
+            <p>{{ article?.topic?.title }}</p>
         </div>
         <div class="article-content">
             <p [innerHTML]="article?.content"></p>
