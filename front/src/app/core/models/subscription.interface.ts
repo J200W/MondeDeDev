@@ -3,15 +3,15 @@
  * @interface
  */
 export interface SubscriptionInterface {
-   id: number;
-   user: {
-      id: number;
-      name: string;
-      email: string;
-   }
-   topic: {
-      id: number;
-      title: string;
-      description: string;
-   }
+    id: number;
+    user: {
+        id: number;
+        name: string;
+        email: string;
+    }
+    topic: {
+        url: string;
+        title: string;
+        description: string;
+    }
 }

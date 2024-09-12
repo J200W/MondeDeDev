@@ -1,5 +1,6 @@
 package com.openclassrooms.mddapi.controllers;
 
+import com.openclassrooms.mddapi.dto.UserDto;
 import com.openclassrooms.mddapi.exception.AlreadyInUseException;
 import com.openclassrooms.mddapi.exception.ResourceNotFoundException;
 import com.openclassrooms.mddapi.models.ERole;
@@ -10,11 +11,12 @@ import com.openclassrooms.mddapi.payload.request.RegisterRequest;
 import com.openclassrooms.mddapi.payload.request.UserRequest;
 import com.openclassrooms.mddapi.payload.response.AuthResponse;
 import com.openclassrooms.mddapi.payload.response.MessageResponse;
-import com.openclassrooms.mddapi.repository.RoleRepository;
-import com.openclassrooms.mddapi.repository.UserRepository;
+
 import com.openclassrooms.mddapi.security.jwt.JwtUtils;
 import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
 import com.openclassrooms.mddapi.service.interfaces.IAuthService;
+import com.openclassrooms.mddapi.service.interfaces.IRoleService;
+import com.openclassrooms.mddapi.service.interfaces.IUserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -57,16 +59,16 @@ public class AuthController {
     IAuthService authService;
 
     /**
-     * UserRepository est utilisé pour accéder aux utilisateur de la base de données
+     * IUserService
      */
     @Autowired
-    UserRepository userRepository;
+    IUserService userService;
 
     /**
-     * RoleRepository est utilisé pour accéder aux roles de la base de données
+     * IRoleService
      */
     @Autowired
-    RoleRepository roleRepository;
+    IRoleService roleService;
 
     /**
      * PasswordEncoder est utilisé pour encoder le mot de passe de l'utilisateur
@@ -79,6 +81,11 @@ public class AuthController {
      */
     @Autowired
     JwtUtils jwtUtils;
+
+    /*
+     * Nom du token JWT
+     */
+    private final String jwtTokenName = "jwtToken";
 
     /**
      * Cette méthode est utilisée pour authentifier un utilisateur
@@ -103,7 +110,7 @@ public class AuthController {
 
         // Créer un cookie HttpOnly contenant le JWT
         response.addCookie(authService.createCookie(
-                "jwtToken",
+                jwtTokenName,
                 jwtUtils.generateJwtToken(authentication),
                 24 * 60 * 60));
 
@@ -129,7 +136,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "Erreur lors de la récupération des informations de l'utilisateur !", content = {
                     @Content(mediaType = "application/json") }),
     })
-    public User getCurrentUser() {
+    public UserDto getCurrentUser() {
         try {
             // Récupérer les informations de l'utilisateur courant
             UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
@@ -139,7 +146,7 @@ public class AuthController {
             List<String> roles = authService.getRoles(userDetails);
 
             // Retourner les informations de l'utilisateur courant
-            return new User(userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles);
+            return new UserDto(userDetails.getEmail(), userDetails.getUsername(), roles);
         } catch (Exception e) {
             throw new ResourceNotFoundException("Erreur lors de la récupération des informations de l'utilisateur !");
         }
@@ -173,24 +180,24 @@ public class AuthController {
             Integer userId = userDetails.getId();
 
             // Vérifier si l'utilisateur existe dans la base de données
-            if (!userRepository.existsById(userId)) {
+            if (!userService.existsById(userId)) {
                 throw new ResourceNotFoundException("Erreur: Utilisateur non trouvé!");
             }
 
             // Vérifier si l'email est déjà utilisé par un autre utilisateur
-            if (userRepository.findByEmail(userRequest.getEmail()).isPresent() &&
-                    !userRepository.findByEmail(userRequest.getEmail()).get().getId().equals(userId)) {
+            if (userService.findByEmail(userRequest.getEmail()).isPresent() &&
+                    !userService.findByEmail(userRequest.getEmail()).get().getId().equals(userId)) {
                 throw new AlreadyInUseException("Erreur: Email déjà utilisé!");
             }
 
             // Vérifier si le nom d'utilisateur est déjà utilisé par un autre utilisateur
-            if (userRepository.findByUsername(userRequest.getUsername()).isPresent() &&
-                    !userRepository.findByUsername(userRequest.getUsername()).get().getId().equals(userId)) {
+            if (userService.findByUsername(userRequest.getUsername()).isPresent() &&
+                    !userService.findByUsername(userRequest.getUsername()).get().getId().equals(userId)) {
                 throw new RuntimeException("Erreur: Nom d'utilisateur déjà utilisé!");
             }
 
             // Récupérer l'utilisateur à partir de la base de données
-            User user = userRepository.findById(userId).get();
+            User user = userService.findById(userId).get();
 
             // Mettre à jour les informations de l'utilisateur
             user.setEmail(userRequest.getEmail());
@@ -200,7 +207,7 @@ public class AuthController {
             }
 
             // Enregistrer les modifications dans la base de données
-            userRepository.save(user);
+            userService.save(user);
 
             // Retourner un message de succès
             return new MessageResponse("Utilisateur mis à jour avec succès!", HttpStatus.OK.value());
@@ -231,12 +238,12 @@ public class AuthController {
             HttpServletResponse response) {
         try {
             // Vérifier si l'email est déjà utilisé
-            if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+            if (userService.existsByEmail(signUpRequest.getEmail())) {
                 throw new AlreadyInUseException("Erreur: Email déjà utilisé!");
             }
 
             // Vérifier si le nom d'utilisateur est déjà utilisé
-            if (userRepository.existsByUsername(signUpRequest.getName())) {
+            if (userService.existsByUsername(signUpRequest.getName())) {
                 throw new AlreadyInUseException("Erreur: Nom d'utilisateur déjà utilisé!");
             }
 
@@ -251,7 +258,7 @@ public class AuthController {
 
             // Si les roles ne sont pas spécifiés, attribuer le role USER par défaut
             if (strRoles == null) {
-                Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                Role userRole = roleService.findByName(ERole.ROLE_USER)
                         .orElseThrow(() -> new ResourceNotFoundException("Erreur: Le role n'est pas trouvé."));
                 roles.add(userRole);
             }
@@ -260,12 +267,12 @@ public class AuthController {
             else {
                 strRoles.forEach(role -> {
                     if (role.equals("admin")) {
-                        Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                        Role adminRole = roleService.findByName(ERole.ROLE_ADMIN)
                                 .orElseThrow(() -> new ResourceNotFoundException("Erreur: Le role n'est pas trouvé."));
                         roles.add(adminRole);
                     } else {
-                        if (roleRepository.findByName(ERole.ROLE_USER).isPresent()) {
-                            Role userRole = roleRepository.findByName(ERole.ROLE_USER).get();
+                        if (roleService.findByName(ERole.ROLE_USER).isPresent()) {
+                            Role userRole = roleService.findByName(ERole.ROLE_USER).get();
                             roles.add(userRole);
                         }
                     }
@@ -274,7 +281,7 @@ public class AuthController {
 
             // Enregistrer l'utilisateur dans la base de données avec les roles
             user.setRole(roles);
-            userRepository.save(user);
+            userService.save(user);
 
             // Authentification de l'utilisateur avec l'email et le mot de passe
             Authentication authentication = authenticationManager.authenticate(
@@ -285,7 +292,7 @@ public class AuthController {
             String jwt = jwtUtils.generateJwtToken(authentication);
 
             // Créer un cookie HttpOnly contenant le JWT
-            response.addCookie(authService.createCookie("jwtToken", jwt, 24 * 60 * 60));
+            response.addCookie(authService.createCookie(jwtTokenName, jwt, 24 * 60 * 60));
 
             // Récupérer les détails de l'utilisateur authentifié
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -319,15 +326,14 @@ public class AuthController {
     })
     public boolean isLogged(HttpServletResponse response) {
         try {
-            // Récupérer les informations de l'utilisateur courant
             UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                     .getPrincipal();
             return userDetails != null;
         } catch (ResourceNotFoundException e) {
-            response.addCookie(authService.createCookie("jwtToken", null, 0));
+            response.addCookie(authService.createCookie(jwtTokenName, null, 0));
             throw new ResourceNotFoundException("Erreur: Utilisateur non connecté !");
         } catch (Exception e) {
-            response.addCookie(authService.createCookie("jwtToken", null, 0));
+            response.addCookie(authService.createCookie(jwtTokenName, null, 0));
             throw new RuntimeException("Erreur: Erreur rencontrée lors de la vérification de l'utilisateur !");
         }
     }
@@ -346,7 +352,7 @@ public class AuthController {
     public MessageResponse logout(HttpServletResponse response) {
         try {
             // Créer un cookie HttpOnly contenant le JWT
-            response.addCookie(authService.createCookie("jwtToken", null, 0));
+            response.addCookie(authService.createCookie(jwtTokenName, null, 0));
 
             // Retourner un message de succès
             return new MessageResponse("Déconnexion réussie !", HttpStatus.OK.value());

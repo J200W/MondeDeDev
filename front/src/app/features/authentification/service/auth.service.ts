@@ -5,7 +5,7 @@ import { LoginRequest } from '../interfaces/loginRequest.interface';
 import { ResponseAPI } from '../interfaces/responseApiSuccess.interface';
 import { RegisterRequest } from '../interfaces/registerRequest.interface';
 import { User } from 'src/app/core/models/user.interface';
-import { environment } from 'src/environments/environment';
+import { environment } from "src/app/environments/environment";
 
 @Injectable({
     providedIn: 'root',

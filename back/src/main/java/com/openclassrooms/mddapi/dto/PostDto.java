@@ -17,11 +17,18 @@ import lombok.Setter;
 public class PostDto {
 
     /**
-     * L'identifiant de la publication
+     * Le titre de la publication
      */
     @Getter
     @Setter
     public String title;
+
+    /**
+     * L'url de la publication
+     */
+    @Getter
+    @Setter
+    public String url;
 
     /**
      * Le contenu de la publication

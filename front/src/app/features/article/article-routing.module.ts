@@ -6,7 +6,7 @@ import {DetailArticleComponent} from "./components/detail-article/detail-article
 
 const routes: Routes = [
    {title: 'Articles | MondeDeDév', path: '', component: ListArticleComponent},
-   {title: 'Article | MondeDeDév', path: 'detail/:id', component: DetailArticleComponent},
+   {title: 'Article | MondeDeDév', path: 'detail/:url', component: DetailArticleComponent},
    {title: 'Créer un article | MondeDeDév', path: 'create', component: FormArticleComponent},
 ];
 

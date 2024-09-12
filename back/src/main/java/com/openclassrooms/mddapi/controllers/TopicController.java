@@ -3,9 +3,9 @@ package com.openclassrooms.mddapi.controllers;
 import com.openclassrooms.mddapi.dto.TopicDto;
 import com.openclassrooms.mddapi.exception.ResourceNotFoundException;
 import com.openclassrooms.mddapi.models.Topic;
-import com.openclassrooms.mddapi.repository.UserRepository;
 import com.openclassrooms.mddapi.service.SubscriptionService;
 import com.openclassrooms.mddapi.service.interfaces.ITopicService;
+import com.openclassrooms.mddapi.service.interfaces.IUserService;
 import com.openclassrooms.mddapi.utils.ModelMapperService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,10 +41,10 @@ public class TopicController {
     private SubscriptionService subscriptionService;
 
     /**
-     * Injection de UserRepository
+     * Injection de IUserService
      */
     @Autowired
-    private UserRepository userRepository;
+    private IUserService userService;
     
     /**
      * Injection de ModelMapperService
@@ -63,10 +63,11 @@ public class TopicController {
             @ApiResponse(responseCode = "200", description = "Les sujets de discussion ont été récupérés"),
             @ApiResponse(responseCode = "400", description = "Impossible de récupérer les sujets de discussion")
     })
-    public List<Topic> getAllTopics() {
+    public List<TopicDto> getAllTopics() {
         try {
             List<Topic> topics = topicService.findAll();
-            return topics;
+            List<TopicDto> topicDtos = modelMapperService.convertTopicsToTopicDtos(topics);
+            return topicDtos;
         } catch (Exception e) {
             throw new RuntimeException("Erreur: Impossible de récupérer les sujets de discussion");
         }
@@ -83,14 +84,15 @@ public class TopicController {
             @ApiResponse(responseCode = "200", description = "Les sujets non souscrit ont été récupérés"),
             @ApiResponse(responseCode = "400", description = "Impossible de récupérer les sujets non souscrit")
     })
-    public List<Topic> getNotFollowedTopics() {
+    public List<TopicDto> getNotFollowedTopics() {
         try {
             List<Topic> topics = topicService.findAll();
             UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
                     .getPrincipal();
-            Integer userId = userRepository.findByUsername(userDetails.getUsername()).get().getId();
-            topics.removeIf(topic -> subscriptionService.existsByTopicIdAndUserId(topic.getId(), userId));
-            return topics;
+            Integer userId = userService.findByUsername(userDetails.getUsername()).get().getId();
+            topics.removeIf(topic -> subscriptionService.existsByTopicUrlAndUserId(topic.getUrl(), userId));
+            List<TopicDto> topicDtos = modelMapperService.convertTopicsToTopicDtos(topics);
+            return topicDtos;
         } catch (Exception e) {
             throw new RuntimeException("Erreur: Impossible de récupérer les sujets de discussion");
         }

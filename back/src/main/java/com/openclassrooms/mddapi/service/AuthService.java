@@ -35,4 +35,9 @@ public class AuthService implements IAuthService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Integer getUserId(UserDetailsImpl userDetails) {
+        return userDetails.getId();
+    }
 }

@@ -3,7 +3,10 @@ package com.openclassrooms.mddapi.controllers;
 import com.openclassrooms.mddapi.dto.PostDto;
 import com.openclassrooms.mddapi.exception.AlreadyInUseException;
 import com.openclassrooms.mddapi.models.Post;
+import com.openclassrooms.mddapi.security.service.UserDetailsImpl;
+import com.openclassrooms.mddapi.service.interfaces.IAuthService;
 import com.openclassrooms.mddapi.service.interfaces.IPostService;
+import com.openclassrooms.mddapi.service.interfaces.ITopicService;
 import com.openclassrooms.mddapi.utils.ModelMapperService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +16,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +36,18 @@ public class PostController {
     private IPostService postService;
 
     /**
+     * Injection de IAuthService.
+     */
+    @Autowired
+    private IAuthService authService;
+
+    /*
+     * Injection de ITopicService.
+     */
+    @Autowired
+    private ITopicService topicService;
+
+    /**
      * Injection de ModelMapperService.
      */
     @Autowired
@@ -39,6 +55,7 @@ public class PostController {
 
     /**
      * Récupérer tous les posts
+     * 
      * @return - List<Post>
      */
     @GetMapping("/all")
@@ -48,30 +65,32 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "Les articles ont été récupérés"),
             @ApiResponse(responseCode = "400", description = "Impossible de récupérer les articles")
     })
-    public List<Post> getAllPosts() {
+    public List<PostDto> getAllPosts() {
         try {
             List<Post> posts = postService.findAll();
-            return posts;
+            List<PostDto> postsDtos = modelMapperService.convertPostsToPostDto(posts);
+            return postsDtos;
         } catch (Exception e) {
             throw new RuntimeException("Erreur: Impossible de récupérer les articles");
         }
     }
 
     /**
-     * Récupérer un post par son identifiant
-     * @param id - L'identifiant du post
+     * Récupérer un post par son url
+     * 
+     * @param url - L'url du post
      * @return - PostDto
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{url}")
     @ResponseStatus(value = HttpStatus.OK)
     @Operation(summary = "Récupérer un article par son identifiant")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "L'article a été récupéré"),
             @ApiResponse(responseCode = "400", description = "Impossible de récupérer l'article")
     })
-    public PostDto getPostById(@PathVariable Integer id) {
+    public PostDto getPostByUrl(@PathVariable String url) {
         try {
-            Post post = postService.getById(id);
+            Post post = postService.getByUrl(url);
             PostDto postDto = modelMapperService.getModelMapper().map(post, PostDto.class);
             postDto.setUser(modelMapperService.convertUserToUserDto(post.getUser()));
             return postDto;
@@ -82,6 +101,7 @@ public class PostController {
 
     /**
      * Créer un post
+     * 
      * @param post - Le post à créer
      * @return - PostDto
      */
@@ -94,9 +114,13 @@ public class PostController {
     })
     public PostDto createPost(@Valid @RequestBody Post post) {
         try {
-            if(postService.findByTitle(post.getTitle())) {
+            if (postService.findByTitle(post.getTitle())) {
                 throw new AlreadyInUseException("Erreur: Un article avec ce titre existe déjà");
             }
+            UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                    .getPrincipal();
+            post.getUser().setId(authService.getUserId(userDetails));
+            post.getTopic().setId(topicService.findByUrl(post.getTopic().getTitle()).getId());
             Post newPost = postService.create(post);
             PostDto newPostDto = modelMapperService.getModelMapper().map(newPost, PostDto.class);
             return newPostDto;

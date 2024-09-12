@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
 
 import com.openclassrooms.mddapi.dto.UserDto;
 import com.openclassrooms.mddapi.dto.UserNoRoleDto;
+import com.openclassrooms.mddapi.dto.PostDto;
 import com.openclassrooms.mddapi.dto.SubscriptionDto;
 import com.openclassrooms.mddapi.dto.TopicDto;
+import com.openclassrooms.mddapi.models.Post;
 import com.openclassrooms.mddapi.models.Subscription;
 import com.openclassrooms.mddapi.models.Topic;
 import com.openclassrooms.mddapi.models.User;
@@ -35,7 +37,6 @@ public class ModelMapperService {
         return userDto;
     }
 
-
     public List<SubscriptionDto> convertSubsToSubDtos(List<Subscription> subscriptions) {
         return subscriptions.stream()
                 .map(subscription -> {
@@ -50,6 +51,12 @@ public class ModelMapperService {
     public List<TopicDto> convertTopicsToTopicDtos(List<Topic> topics) {
         return topics.stream()
                 .map(topic -> modelMapper.map(topic, TopicDto.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<PostDto> convertPostsToPostDto(List<Post> topics) {
+        return topics.stream()
+                .map(topic -> modelMapper.map(topic, PostDto.class))
                 .collect(Collectors.toList());
     }
 }

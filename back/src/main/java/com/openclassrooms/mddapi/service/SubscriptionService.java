@@ -30,8 +30,8 @@ public class SubscriptionService implements ISubscriptionService {
     }
 
     @Override
-    public Subscription findSubscriptionById(Integer id) {
-        return this.subscriptionRepository.findSubscriptionById(id).orElse(null);
+    public Subscription findSubscriptionByUserIdAndPostUrl(Integer userId, String id) {
+        return this.subscriptionRepository.findByUser_IdAndTopic_Url(userId, id).orElse(null);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class SubscriptionService implements ISubscriptionService {
     }
 
     @Override
-    public Boolean existsByTopicIdAndUserId(Integer topicId, Integer userId) {
-        return this.subscriptionRepository.existsByTopicIdAndUserId(topicId, userId);
+    public Boolean existsByTopicUrlAndUserId(String topicUrl, Integer userId) {
+        return this.subscriptionRepository.existsByTopicUrlAndUserId(topicUrl, userId);
     }
 }

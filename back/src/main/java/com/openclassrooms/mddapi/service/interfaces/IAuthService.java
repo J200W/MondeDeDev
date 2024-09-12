@@ -28,4 +28,14 @@ public interface IAuthService {
      * @return List<String>
      */
     List<String> getRoles(UserDetailsImpl userDetails);
+
+    /**
+     * Récupérer l'identifiant d'un utilisateur.
+     *
+     * @param userDetails l'objet contenant les détails de l'utilisateur
+     * @return Integer
+     */
+    Integer getUserId(UserDetailsImpl userDetails);
+
+
 }
