@@ -5,6 +5,7 @@ import com.openclassrooms.mddapi.repository.SubscriptionRepository;
 import com.openclassrooms.mddapi.service.interfaces.ISubscriptionService;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Data
 /**
  * La classe SubscriptionService est le service pour les abonnements.
  * @see ISubscriptionService

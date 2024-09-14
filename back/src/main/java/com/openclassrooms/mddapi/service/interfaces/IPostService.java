@@ -12,7 +12,7 @@ public interface IPostService {
      * Récupérer tous les posts
      * @return - List<Post>
      */
-    List<Post> findAll();
+    List<Post> findAllSubscribedPosts(Integer userId);
 
     /**
      * Récupérer un post par son id

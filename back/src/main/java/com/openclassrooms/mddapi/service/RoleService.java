@@ -11,8 +11,10 @@ import com.openclassrooms.mddapi.repository.RoleRepository;
 import com.openclassrooms.mddapi.service.interfaces.IRoleService;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @AllArgsConstructor
+@Data
 @Service
 /**
  * La classe RoleService est l'implémentation du service pour les rôles.

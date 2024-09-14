@@ -1,19 +1,25 @@
 package com.openclassrooms.mddapi.service;
 
 import com.openclassrooms.mddapi.models.Post;
+import com.openclassrooms.mddapi.models.Subscription;
 import com.openclassrooms.mddapi.repository.PostRepository;
+import com.openclassrooms.mddapi.repository.SubscriptionRepository;
 import com.openclassrooms.mddapi.service.interfaces.IPostService;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Data
 /**
  * La classe PostService est le service pour les posts.
+ * 
  * @see IPostService
  */
 public class PostService implements IPostService {
@@ -23,9 +29,18 @@ public class PostService implements IPostService {
      */
     private final PostRepository postRepository;
 
+    /**
+     * Le repository SubscriptionRepository
+     */
+    private final SubscriptionRepository subscriptionRepository;
+
     @Override
-    public List<Post> findAll() {
-        return this.postRepository.findAllByOrderByDateDesc();
+    public List<Post> findAllSubscribedPosts(Integer userId) {
+        Optional<List<Subscription>> subscriptionList = this.subscriptionRepository
+                .findAllByUser_IdOrderByIdDesc(userId);
+        List<Integer> topicIds = subscriptionList.get().stream().map(Subscription::getTopic).map(topic -> topic.getId())
+                .toList();
+        return this.postRepository.findAllByTopicIdInOrderByIdDesc(topicIds);
     }
 
     @Override

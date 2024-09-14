@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.util.List;
 
@@ -30,6 +32,8 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/subscription")
+@AllArgsConstructor
+@Data
 public class SubscriptionController {
 
     /**

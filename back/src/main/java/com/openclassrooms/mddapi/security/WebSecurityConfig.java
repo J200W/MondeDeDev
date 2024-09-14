@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,24 +34,6 @@ public class WebSecurityConfig {
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
-    }
-
-    /*
-     * Cette méthode est utilisée pour créer un fournisseur d'authentification
-     */
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        // Créer un fournisseur d'authentification
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-
-        // Définir le service UserDetailsServiceImpl pour le fournisseur
-        // d'authentification
-        authProvider.setUserDetailsService(userDetailsService);
-
-        // Définir le mot de passe encodeur pour le fournisseur d'authentification
-        authProvider.setPasswordEncoder(passwordEncoder());
-
-        return authProvider;
     }
 
     /*
@@ -103,9 +84,6 @@ public class WebSecurityConfig {
 
                 // les autres chemins de l'API (pour les utilisateurs authentifiés)
                 .anyRequest().authenticated());
-
-        // Ajouter un fournisseur d'authentification
-        http.authenticationProvider(authenticationProvider());
 
         // Ajouter un filtre pour valider les jetons JWT
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

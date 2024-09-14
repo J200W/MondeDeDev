@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.openclassrooms.mddapi.dto.UserDto;
 import com.openclassrooms.mddapi.dto.UserNoRoleDto;
@@ -16,8 +16,17 @@ import com.openclassrooms.mddapi.models.Subscription;
 import com.openclassrooms.mddapi.models.Topic;
 import com.openclassrooms.mddapi.models.User;
 
-@Component
-public class ModelMapperService {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Service
+@AllArgsConstructor
+@Data
+/**
+ * La classe ModelMapperService est le service pour le modelMapper.
+ * @see IModelMapperService
+ */
+public class ModelMapperService implements IModelMapperService{
 
     private final ModelMapper modelMapper;
 
@@ -25,10 +34,7 @@ public class ModelMapperService {
         this.modelMapper = new ModelMapper();
     }
 
-    public ModelMapper getModelMapper() {
-        return modelMapper;
-    }
-
+    @Override
     public UserDto convertUserToUserDto(User user) {
         UserDto userDto = modelMapper.map(user, UserDto.class);
         userDto.setRole(user.getRole().stream()
@@ -37,6 +43,7 @@ public class ModelMapperService {
         return userDto;
     }
 
+    @Override
     public List<SubscriptionDto> convertSubsToSubDtos(List<Subscription> subscriptions) {
         return subscriptions.stream()
                 .map(subscription -> {
@@ -48,12 +55,14 @@ public class ModelMapperService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<TopicDto> convertTopicsToTopicDtos(List<Topic> topics) {
         return topics.stream()
                 .map(topic -> modelMapper.map(topic, TopicDto.class))
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<PostDto> convertPostsToPostDto(List<Post> topics) {
         return topics.stream()
                 .map(topic -> modelMapper.map(topic, PostDto.class))

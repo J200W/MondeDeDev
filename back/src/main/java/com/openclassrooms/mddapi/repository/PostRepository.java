@@ -16,4 +16,5 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     void deleteByTopicId(Integer topicId);
     Optional<Post> findByTitle(String title);
     Optional<Post> findByUrl(String url);
+    List<Post> findAllByTopicIdInOrderByIdDesc(List<Integer> topicIds);
 }

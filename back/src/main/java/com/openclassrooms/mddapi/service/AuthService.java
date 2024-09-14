@@ -11,9 +11,11 @@ import com.openclassrooms.mddapi.service.interfaces.IAuthService;
 
 import jakarta.servlet.http.Cookie;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Service
 @AllArgsConstructor
+@Data
 /**
  * La classe AuthService est le service pour l'authentification.
  * @see IAuthService

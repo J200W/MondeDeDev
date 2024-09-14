@@ -5,6 +5,7 @@ import com.openclassrooms.mddapi.repository.CommentRepository;
 import com.openclassrooms.mddapi.service.interfaces.ICommentService;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Data
 /**
  * La classe CommentService est le service pour les commentaires.
  * @see ICommentService

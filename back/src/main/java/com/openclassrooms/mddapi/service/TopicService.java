@@ -6,6 +6,7 @@ import com.openclassrooms.mddapi.repository.TopicRepository;
 import com.openclassrooms.mddapi.service.interfaces.ITopicService;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Data
 /**
  * La classe TopicService est le service pour les thèmes.
  * @see ITopicService
