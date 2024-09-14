@@ -16,7 +16,7 @@ export class SubscriptionService {
     /**
      * Chemin vers le service
      * @type {string}
-     * @memberof AuthService
+     * @default api/subscription
      * @private
      */
     private pathService: string = `${environment.apiBaseUrl}/api/subscription`;

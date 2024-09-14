@@ -16,7 +16,7 @@ export class ArticleService {
     /**
      * Chemin vers le service
      * @type {string}
-     * @default api/auth
+     * @default api/post
      * @private
      */
     private pathService: string = `${environment.apiBaseUrl}/api/post`;

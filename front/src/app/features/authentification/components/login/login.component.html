@@ -39,7 +39,8 @@
                 >
                     Se connecter
                 </button>
-                <p *ngIf="onError" class="error">An error occurred</p>
+                <p *ngIf="onError" class="error">{{ errorMessage }}</p>
             </div>
         </form>
-  
+    </mat-card>
+</div>

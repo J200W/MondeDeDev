@@ -43,7 +43,6 @@ export class SessionService {
 
     /**
      * Connecte l'utilisateur
-     * @param user 
      */
     public logIn(): void {
         this.setLocalStorageIsLogged(true);

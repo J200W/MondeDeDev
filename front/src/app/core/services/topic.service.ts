@@ -16,7 +16,7 @@ export class TopicService {
      * Chemin vers le service
      * @type {string}
      * @memberof AuthService
-     * @default api/auth
+     * @default api/topic
      * @private
      */
     private pathService: string = `${environment.apiBaseUrl}/api/topic`;

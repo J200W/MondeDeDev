@@ -5,6 +5,7 @@ import { SessionService } from "../../../../core/services/session.service";
 import { Router } from "@angular/router";
 import { AuthService } from "../../service/auth.service";
 import { LoginRequest } from "../../interfaces/loginRequest.interface";
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-login',
@@ -21,6 +22,10 @@ export class LoginComponent implements OnDestroy {
      * Indique si une erreur est survenue lors de la connexion
      */
     public onError = false;
+    /**
+     * Indique si une erreur est survenue lors de la connexion
+     */
+    public errorMessage = "";
     /**
      * Formulaire de connexion
      */
@@ -50,8 +55,9 @@ export class LoginComponent implements OnDestroy {
                 this.sessionService.logIn();
                 this.router.navigate(['/article']);
             },
-            error: () => {
+            error: (error: HttpErrorResponse) => {
                 this.onError = true;
+                this.errorMessage = error.error.message;
             }
         }));
     }

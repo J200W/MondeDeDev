@@ -7,7 +7,7 @@
     align-items: center;
 }
 
-.login > mat-card {
+.login>mat-card {
     border: none;
     box-shadow: none;
 }
@@ -31,5 +31,9 @@ mat-form-field {
     flex-direction: column;
     justify-content: center;
     margin: auto;
-    width: fit-content;
+
+    button {
+        width: fit-content;
+        margin: auto;
+    }
 }

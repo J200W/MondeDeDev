@@ -16,7 +16,7 @@ export class CommentService {
     /**
      * Chemin vers le service
      * @type {string}
-     * @default api/auth
+     * @default api/comment
      * @private
      */
     private pathService: string = `${environment.apiBaseUrl}/api/comment`;
